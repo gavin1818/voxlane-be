@@ -2,6 +2,8 @@
 
 Rails API backend for Voxlane website billing and desktop-app entitlements.
 
+ssh root@146.190.241.57
+
 ## Stack
 
 - Ruby `3.3.10` via `rbenv`
