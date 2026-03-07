@@ -79,8 +79,4 @@ test:
 #
 production:
   <<: *default
-  database: voxlanedb
-  username: voxlanedb
-  password: <%= ENV["DATABASE_URL"] %>
-
-```
+  url: <%= ENV["DATABASE_URL"] %>
