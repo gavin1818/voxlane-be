@@ -1,66 +1,315 @@
-<section class="hero">
-  <span class="hero__eyebrow">Pricing</span>
-  <h1 class="hero__title">One account, one 7-day trial, one Pro plan.</h1>
-  <p class="hero__copy">
-    Voxlane now sells directly from <%= URI.parse(AppConfig.frontend_url).host %>. Sign in once,
-    keep your trial on the account, pay through Stripe, and let the Mac app sync entitlement automatically.
-  </p>
+<section class="hero hero--landing">
+  <div class="hero__layout">
+    <div class="hero__content stack">
+      <span class="hero__eyebrow">Voice-First Writing for macOS</span>
+      <h1 class="hero__title">Voxlane turns fast speech into clean, ready-to-send text.</h1>
+      <p class="hero__copy">
+        Inspired by the structure of Typless, but built around the real Voxlane product:
+        one account across web and desktop, a 7-day trial that lives on the server,
+        Stripe billing for Pro, and direct macOS delivery with Sparkle updates.
+      </p>
 
-  <div class="button-row">
-    <% if authenticated? %>
-      <a class="button button--secondary" href="<%= account_path %>">Open account</a>
-      <%= button_to "Open Stripe checkout",
-        checkout_path(
-          success_url: account_url(checkout: "success"),
-          cancel_url: pricing_url(checkout: "cancelled")
-        ),
-        method: :post,
-        class: "button button--primary" %>
-    <% else %>
-      <a class="button button--primary" href="<%= login_path %>">Sign in to start trial</a>
-      <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download macOS app</a>
-    <% end %>
-  </div>
+      <div class="button-row">
+        <% if authenticated? %>
+          <%= button_to "Start Pro checkout",
+            checkout_path(
+              success_url: account_url(checkout: "success"),
+              cancel_url: pricing_url(checkout: "cancelled")
+            ),
+            method: :post,
+            class: "button button--primary" %>
+          <a class="button button--secondary" href="<%= account_path %>">Open account</a>
+        <% else %>
+          <a class="button button--primary" href="<%= login_path %>">Start 7-day trial</a>
+          <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+        <% end %>
+      </div>
 
-  <div class="stats">
-    <span class="pill">7-day account trial</span>
-    <span class="pill">Stripe checkout + portal</span>
-    <span class="pill">Sparkle auto updates</span>
+      <p class="hero__caption">
+        Built for people who move between email, specs, support replies, meeting follow-ups,
+        and release notes all day long.
+      </p>
+
+      <div class="badge-row">
+        <span class="pill">Account-based trial</span>
+        <span class="pill">Stripe checkout + portal</span>
+        <span class="pill">Sparkle auto updates</span>
+        <span class="pill">Shared web + app entitlement</span>
+      </div>
+
+      <div class="mini-stats">
+        <article class="mini-stat">
+          <strong>7 days</strong>
+          <p>Free trial follows your account instead of a single device.</p>
+        </article>
+        <article class="mini-stat">
+          <strong>1 identity</strong>
+          <p>The website and Mac app read the same Supabase-backed access record.</p>
+        </article>
+        <article class="mini-stat">
+          <strong>Direct</strong>
+          <p>Download outside the App Store and keep updates flowing through Sparkle.</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="hero__media">
+      <div class="hero-visual">
+        <div class="hero-visual__window">
+          <div class="window__chrome">
+            <span class="window__dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span>Voxlane Session</span>
+          </div>
+
+          <div class="badge-row" style="margin-bottom: 16px;">
+            <span class="pill pill--dark">Live dictation</span>
+            <span class="pill pill--dark">Rewrite</span>
+            <span class="pill pill--dark">Paste anywhere</span>
+          </div>
+
+          <div class="transcript-card">
+            <div class="transcript-line transcript-line--strong">
+              Draft the customer follow-up from today&apos;s rollout call.
+            </div>
+            <div class="transcript-line">
+              Summarize the pricing change, confirm the launch timeline, and close with two clear next steps.
+            </div>
+            <div class="transcript-output">
+              <span class="kicker">Structured output</span>
+              <p>
+                Subject: next steps after today&apos;s rollout call.<br>
+                Thanks again for the walkthrough. We confirmed the Pro rollout window and the new billing path.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual__cards">
+          <article class="signal-card">
+            <strong>Server-backed access</strong>
+            <p>Your trial and Pro state stay in sync across the website and the macOS app.</p>
+          </article>
+          <article class="signal-card">
+            <strong>One-click recovery</strong>
+            <p>Sign in again, refresh the entitlement, and keep writing without App Store receipt drift.</p>
+          </article>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="grid">
-  <section class="grid-card">
-    <span class="kicker">Plan</span>
-    <h2>Voxlane Pro</h2>
-    <p class="lede">
-      <strong><%= AppConfig.stripe_price_label %></strong><br>
-      Monthly billing on <%= URI.parse(AppConfig.frontend_url).host %>
+<section class="section-card trust-strip" id="product">
+  <div class="section-heading section-heading--wide">
+    <span class="kicker">Use Cases</span>
+    <h2>One voice workflow for the places where words move the work forward.</h2>
+    <p>
+      Instead of inventing fake logos or claims, this section stays grounded in how Voxlane is actually used:
+      capturing intent fast, shaping it into polished text, and shipping it through the same account everywhere.
     </p>
-    <ul style="margin-top: 16px;">
-      <li>Account-based free trial that follows the user across devices</li>
-      <li>Hosted checkout and self-service billing via Stripe</li>
-      <li>Direct download with Sparkle-powered in-app updates</li>
-    </ul>
-  </section>
+  </div>
 
-  <section class="grid-card">
-    <span class="kicker">What changed</span>
-    <h2>No more App Store lock-in</h2>
-    <ul>
-      <li>The macOS app signs in first, then requests entitlement from the backend</li>
-      <li>Trial and Pro access live on the server instead of in device-local App Store receipts</li>
-      <li>Billing and cancellations happen on the web without waiting for App Store review cycles</li>
-    </ul>
-  </section>
+  <div class="badge-row">
+    <span class="pill">Meeting summaries</span>
+    <span class="pill">Customer follow-ups</span>
+    <span class="pill">Product specs</span>
+    <span class="pill">Support responses</span>
+    <span class="pill">Release notes</span>
+    <span class="pill">Internal docs</span>
+  </div>
+</section>
 
-  <section class="grid-card">
-    <span class="kicker">Operations</span>
-    <h2>Release workflow</h2>
-    <ul>
-      <li>Upload a notarized build</li>
-      <li>Publish a signed Sparkle appcast item</li>
-      <li>Users get in-app update prompts without redownloading manually</li>
-    </ul>
-  </section>
-</div>
+<section class="feature-band">
+  <div class="feature-band__grid">
+    <div>
+      <article class="showcase-card">
+        <span class="showcase-card__label">Capture</span>
+        <h3>Speak naturally. Let Voxlane clean up the draft.</h3>
+        <p>
+          Start messy, stay fast. Voxlane is designed for the moment when you have the answer in your head
+          and need the first useful version on screen immediately.
+        </p>
+      </article>
+
+      <article class="showcase-card">
+        <span class="showcase-card__label">Ship</span>
+        <div class="showcase-list">
+          <span>Turn raw speech into email-ready copy</span>
+          <span>Keep formatting tight for docs and tickets</span>
+          <span>Reuse the same identity for billing and desktop access</span>
+        </div>
+      </article>
+    </div>
+
+    <div>
+      <div class="section-heading section-heading--light section-heading--wide">
+        <span class="kicker kicker--light">Product</span>
+        <h2>Voxlane keeps the entire writing loop in one place.</h2>
+        <p>
+          The interface can feel editorial and calm, but the mechanics are practical:
+          login, entitlement, checkout, updates, and release notes are already wired into this app.
+        </p>
+      </div>
+
+      <div class="cards-grid cards-grid--two">
+        <article class="signal-card">
+          <h3>Voice to draft</h3>
+          <p>Capture the first pass quickly, then tighten the copy before it leaves your Mac.</p>
+        </article>
+        <article class="signal-card">
+          <h3>Account-aware access</h3>
+          <p>Your trial and paid access live on the backend, not in fragile local receipts.</p>
+        </article>
+        <article class="signal-card">
+          <h3>Web billing that matches the app</h3>
+          <p>Upgrade and manage billing from the site, then let the desktop client refresh entitlement.</p>
+        </article>
+        <article class="signal-card">
+          <h3>Direct release delivery</h3>
+          <p>New builds are published through Sparkle so updates land without a fresh manual install.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-card" id="workflow">
+  <div class="section-heading section-heading--wide">
+    <span class="kicker">Workflow</span>
+    <h2>How Voxlane works in practice.</h2>
+    <p>
+      The visual direction takes cues from Typless, but the flow below maps to the actual Rails + Stripe +
+      Sparkle stack already in this repository.
+    </p>
+  </div>
+
+  <div class="workflow-grid">
+    <article class="workflow-card">
+      <span class="workflow-card__step">Step 1</span>
+      <h3>Sign in once</h3>
+      <p>Use email OTP on the web and the same identity inside the macOS app.</p>
+    </article>
+
+    <article class="workflow-card">
+      <span class="workflow-card__step">Step 2</span>
+      <h3>Start the account trial</h3>
+      <p>The free trial is attached to the user account, so access survives device switches.</p>
+    </article>
+
+    <article class="workflow-card">
+      <span class="workflow-card__step">Step 3</span>
+      <h3>Upgrade through Stripe</h3>
+      <p>Hosted checkout and self-serve billing keep subscription changes outside the App Store.</p>
+    </article>
+
+    <article class="workflow-card">
+      <span class="workflow-card__step">Step 4</span>
+      <h3>Refresh and keep moving</h3>
+      <p>The desktop app reads the same entitlement record and Sparkle handles new release delivery.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section-card">
+  <div class="section-heading section-heading--wide">
+    <span class="kicker">Platform</span>
+    <h2>Everything behind the landing page is already connected.</h2>
+    <p>
+      This site now presents the product like a real landing page, but the sections below are tied directly
+      to capabilities that already exist in the app and backend.
+    </p>
+  </div>
+
+  <div class="cards-grid">
+    <article class="feature-card">
+      <h3>Supabase identity</h3>
+      <p>Email OTP and token verification keep website and app sessions aligned.</p>
+    </article>
+
+    <article class="feature-card">
+      <h3>Server-side entitlement</h3>
+      <p>Trialing and active access states live in the backend so device changes do not reset access.</p>
+    </article>
+
+    <article class="feature-card">
+      <h3>Stripe checkout</h3>
+      <p>Checkout sessions and billing portal flows are exposed directly from this Rails app.</p>
+    </article>
+
+    <article class="feature-card">
+      <h3>Webhook sync</h3>
+      <p>Subscription changes land through Stripe webhooks and reconcile into the current entitlement.</p>
+    </article>
+
+    <article class="feature-card">
+      <h3>Device registration</h3>
+      <p>The desktop client can register itself and read the latest access state whenever needed.</p>
+    </article>
+
+    <article class="feature-card">
+      <h3>Release notes + Sparkle</h3>
+      <p>Signed appcasts and release notes are already served from this app for direct macOS distribution.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section-card" id="pricing">
+  <div class="pricing-block__grid">
+    <div>
+      <div class="section-heading section-heading--wide">
+        <span class="kicker">Pricing</span>
+        <h2>One Pro plan, one account, one place to manage it.</h2>
+        <p>
+          Billing is hosted on <%= URI.parse(AppConfig.frontend_url).host %>, the account dashboard reads the same
+          backend entitlement, and the Mac app can refresh access as soon as the webhook lands.
+        </p>
+      </div>
+
+      <div class="badge-row">
+        <span class="pill">7-day free trial</span>
+        <span class="pill">Monthly billing</span>
+        <span class="pill">Direct macOS delivery</span>
+      </div>
+    </div>
+
+    <aside class="plan-card">
+      <span class="plan-card__eyebrow">Voxlane Pro</span>
+      <div class="plan-card__price"><%= AppConfig.stripe_price_label %></div>
+      <p>
+        Built for users who want the speed of dictation, the control of a polished draft,
+        and the reliability of an account system that survives reinstalling the app.
+      </p>
+
+      <ul class="checklist">
+        <li>Account-based free trial that follows the same user across devices</li>
+        <li>Hosted Stripe checkout and self-service billing portal</li>
+        <li>Direct macOS download with Sparkle-powered updates</li>
+        <li>Release notes published from the same backend</li>
+      </ul>
+
+      <div class="button-row" style="margin-top: 20px;">
+        <% if authenticated? %>
+          <%= button_to "Open Stripe checkout",
+            checkout_path(
+              success_url: account_url(checkout: "success"),
+              cancel_url: pricing_url(checkout: "cancelled")
+            ),
+            method: :post,
+            class: "button button--primary" %>
+          <a class="button button--secondary" href="<%= account_path %>">Manage account</a>
+        <% else %>
+          <a class="button button--primary" href="<%= login_path %>">Sign in to start trial</a>
+          <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download app</a>
+        <% end %>
+      </div>
+
+      <p class="meta" style="margin-top: 18px;">
+        Want the latest shipping notes? View the current <a href="<%= release_notes_path %>">release notes</a>.
+      </p>
+    </aside>
+  </div>
+</section>

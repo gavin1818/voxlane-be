@@ -20,7 +20,7 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     get pricing_path
 
     assert_response :success
-    assert_includes response.body, "One account, one 7-day trial, one Pro plan."
+    assert_includes response.body, "Voxlane turns fast speech into clean, ready-to-send text."
   end
 
   test "verify code signs user in and redirects to account" do

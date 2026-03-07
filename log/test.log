@@ -1021,3 +1021,81 @@ Completed 201 Created in 16ms (Views: 0.1ms | ActiveRecord: 8.8ms (7 queries, 0 
 [dotenv] Restored snapshot of [32mENV[0m
 [dotenv] Unset [31mSUPABASE_JWT_SECRET[0m, [31mSUPABASE_JWT_AUD[0m, [31mSUPABASE_JWT_ISSUER[0m, [31mFRONTEND_URL[0m, [31mCORS_ALLOWED_ORIGINS[0m, [31mTRIAL_DAYS[0m, [31mENTITLEMENT_KEY[0m, [31mSTRIPE_PRO_PRICE_ID[0m
   [1m[36mTRANSACTION (0.4ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mActiveRecord::InternalMetadata Load (2.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = $1 ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1[0m  [[nil, "schema_sha1"]]
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------------------------------------
+WebSiteFlowTest: test_verify_code_signs_user_in_and_redirects_to_account
+------------------------------------------------------------------------
+[dotenv] Saved a snapshot of [32mENV[0m
+Started POST "/login/verify" for 127.0.0.1 at 2026-03-07 12:10:49 -0800
+Processing by Web::SessionsController#create as HTML
+  Parameters: {"auth"=>{"email"=>"[FILTERED]", "token"=>"[FILTERED]"}}
+Redirected to http://www.example.com/account
+Completed 302 Found in 2ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+Started GET "/account" for 127.0.0.1 at 2026-03-07 12:10:49 -0800
+Processing by Web::PagesController#account as HTML
+  [1m[36mUser Load (1.3ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."supabase_uid" = $1 LIMIT $2[0m  [["supabase_uid", "supabase-user-1"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (1.3ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mUser Exists? (2.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."supabase_uid" = $1 LIMIT $2[0m  [["supabase_uid", "supabase-user-1"], ["LIMIT", 1]]
+  [1m[36mUser Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Create (1.0ms)[0m  [1m[32mINSERT INTO "users" ("supabase_uid", "email", "display_name", "last_seen_at", "profile", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING "id"[0m  [["supabase_uid", "supabase-user-1"], ["email", "[FILTERED]"], ["display_name", "Alex"], ["last_seen_at", "2026-03-07 20:10:49.461416"], ["profile", "{\"sub\":\"supabase-user-1\",\"email\":\"alex@example.com\",\"user_metadata\":{\"name\":\"Alex\"}}"], ["created_at", "2026-03-07 20:10:49.465593"], ["updated_at", "2026-03-07 20:10:49.465593"]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mEntitlement Load (2.6ms)[0m  [1m[34mSELECT "entitlements".* FROM "entitlements" WHERE "entitlements"."user_id" = $1 AND "entitlements"."key" = $2 LIMIT $3[0m  [["user_id", 33], ["key", "pro"], ["LIMIT", 1]]
+  [1m[36mSubscription Load (1.8ms)[0m  [1m[34mSELECT "subscriptions".* FROM "subscriptions" WHERE "subscriptions"."user_id" = $1[0m  [["user_id", 33]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mEntitlement Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "entitlements" WHERE "entitlements"."key" = $1 AND "entitlements"."user_id" = $2 LIMIT $3[0m  [["key", "pro"], ["user_id", 33], ["LIMIT", 1]]
+  [1m[36mEntitlement Create (1.4ms)[0m  [1m[32mINSERT INTO "entitlements" ("user_id", "key", "status", "source", "active_from", "active_until", "trial_ends_at", "last_synced_at", "metadata", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING "id"[0m  [["user_id", 33], ["key", "pro"], ["status", "trialing"], ["source", "account_trial"], ["active_from", "2026-03-07 20:10:49.465593"], ["active_until", "2026-03-14 20:10:49.465593"], ["trial_ends_at", "2026-03-14 20:10:49.465593"], ["last_synced_at", "2026-03-07 20:10:49.508784"], ["metadata", "{\"trial_days\":7}"], ["created_at", "2026-03-07 20:10:49.510110"], ["updated_at", "2026-03-07 20:10:49.510110"]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  Rendering layout layouts/web.html.erb
+  Rendering web/pages/account.html.erb within layouts/web
+  Rendered web/pages/account.html.erb within layouts/web (Duration: 0.7ms | GC: 0.0ms)
+  Rendered layout layouts/web.html.erb (Duration: 1.4ms | GC: 0.0ms)
+Completed 200 OK in 97ms (Views: 3.1ms | ActiveRecord: 56.2ms (8 queries, 0 cached) | GC: 0.0ms)
+[dotenv] Restored snapshot of [32mENV[0m
+[dotenv] Unset [31mSUPABASE_JWT_SECRET[0m, [31mSUPABASE_JWT_AUD[0m, [31mSUPABASE_JWT_ISSUER[0m, [31mFRONTEND_URL[0m, [31mCORS_ALLOWED_ORIGINS[0m, [31mTRIAL_DAYS[0m, [31mENTITLEMENT_KEY[0m, [31mSTRIPE_PRO_PRICE_ID[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+------------------------------------------
+WebSiteFlowTest: test_pricing_page_renders
+------------------------------------------
+[dotenv] Saved a snapshot of [32mENV[0m
+Started GET "/pricing" for 127.0.0.1 at 2026-03-07 12:10:49 -0800
+Processing by Web::PagesController#pricing as HTML
+  Rendering layout layouts/web.html.erb
+  Rendering web/pages/pricing.html.erb within layouts/web
+  Rendered web/pages/pricing.html.erb within layouts/web (Duration: 0.5ms | GC: 0.0ms)
+  Rendered layout layouts/web.html.erb (Duration: 0.6ms | GC: 0.0ms)
+Completed 200 OK in 1ms (Views: 0.8ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+[dotenv] Restored snapshot of [32mENV[0m
+[dotenv] Unset [31mSUPABASE_JWT_SECRET[0m, [31mSUPABASE_JWT_AUD[0m, [31mSUPABASE_JWT_ISSUER[0m, [31mFRONTEND_URL[0m, [31mCORS_ALLOWED_ORIGINS[0m, [31mTRIAL_DAYS[0m, [31mENTITLEMENT_KEY[0m, [31mSTRIPE_PRO_PRICE_ID[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN[0m
+-------------------------------------------------------------------------------
+WebSiteFlowTest: test_checkout_redirects_authenticated_users_to_stripe_checkout
+-------------------------------------------------------------------------------
+[dotenv] Saved a snapshot of [32mENV[0m
+Started POST "/login/verify" for 127.0.0.1 at 2026-03-07 12:10:49 -0800
+Processing by Web::SessionsController#create as HTML
+  Parameters: {"auth"=>{"email"=>"[FILTERED]", "token"=>"[FILTERED]"}}
+Redirected to http://www.example.com/account
+Completed 302 Found in 0ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+Started POST "/checkout" for 127.0.0.1 at 2026-03-07 12:10:49 -0800
+Processing by Web::BillingController#checkout as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."supabase_uid" = $1 LIMIT $2[0m  [["supabase_uid", "supabase-user-2"], ["LIMIT", 1]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mUser Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."supabase_uid" = $1 LIMIT $2[0m  [["supabase_uid", "supabase-user-2"], ["LIMIT", 1]]
+  [1m[36mUser Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE "users"."email" = $1 LIMIT $2[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mUser Create (4.7ms)[0m  [1m[32mINSERT INTO "users" ("supabase_uid", "email", "display_name", "last_seen_at", "profile", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING "id"[0m  [["supabase_uid", "supabase-user-2"], ["email", "[FILTERED]"], ["display_name", "alex@example.com"], ["last_seen_at", "2026-03-07 20:10:49.530257"], ["profile", "{\"sub\":\"supabase-user-2\",\"email\":\"alex@example.com\"}"], ["created_at", "2026-03-07 20:10:49.531558"], ["updated_at", "2026-03-07 20:10:49.531558"]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+  [1m[36mEntitlement Load (0.2ms)[0m  [1m[34mSELECT "entitlements".* FROM "entitlements" WHERE "entitlements"."user_id" = $1 AND "entitlements"."key" = $2 LIMIT $3[0m  [["user_id", 34], ["key", "pro"], ["LIMIT", 1]]
+  [1m[36mSubscription Load (0.1ms)[0m  [1m[34mSELECT "subscriptions".* FROM "subscriptions" WHERE "subscriptions"."user_id" = $1[0m  [["user_id", 34]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mSAVEPOINT active_record_1[0m
+  [1m[36mEntitlement Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "entitlements" WHERE "entitlements"."key" = $1 AND "entitlements"."user_id" = $2 LIMIT $3[0m  [["key", "pro"], ["user_id", 34], ["LIMIT", 1]]
+  [1m[36mEntitlement Create (0.4ms)[0m  [1m[32mINSERT INTO "entitlements" ("user_id", "key", "status", "source", "active_from", "active_until", "trial_ends_at", "last_synced_at", "metadata", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING "id"[0m  [["user_id", 34], ["key", "pro"], ["status", "trialing"], ["source", "account_trial"], ["active_from", "2026-03-07 20:10:49.531558"], ["active_until", "2026-03-14 20:10:49.531558"], ["trial_ends_at", "2026-03-14 20:10:49.531558"], ["last_synced_at", "2026-03-07 20:10:49.538724"], ["metadata", "{\"trial_days\":7}"], ["created_at", "2026-03-07 20:10:49.539848"], ["updated_at", "2026-03-07 20:10:49.539848"]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mRELEASE SAVEPOINT active_record_1[0m
+Redirected to https://checkout.stripe.com/c/pay/cs_test_123
+Completed 302 Found in 12ms (ActiveRecord: 7.5ms (8 queries, 0 cached) | GC: 0.0ms)
+[dotenv] Restored snapshot of [32mENV[0m
+[dotenv] Unset [31mSUPABASE_JWT_SECRET[0m, [31mSUPABASE_JWT_AUD[0m, [31mSUPABASE_JWT_ISSUER[0m, [31mFRONTEND_URL[0m, [31mCORS_ALLOWED_ORIGINS[0m, [31mTRIAL_DAYS[0m, [31mENTITLEMENT_KEY[0m, [31mSTRIPE_PRO_PRICE_ID[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[31mROLLBACK[0m
