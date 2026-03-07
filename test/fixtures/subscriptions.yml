@@ -1,0 +1,25 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  billing_customer: one
+  provider: MyString
+  external_subscription_id: MyString
+  external_price_id: MyString
+  status: MyString
+  current_period_end_at: 2026-03-07 11:08:10
+  cancel_at_period_end: false
+  canceled_at: 2026-03-07 11:08:10
+  metadata: 
+
+two:
+  user: two
+  billing_customer: two
+  provider: MyString
+  external_subscription_id: MyString
+  external_price_id: MyString
+  status: MyString
+  current_period_end_at: 2026-03-07 11:08:10
+  cancel_at_period_end: false
+  canceled_at: 2026-03-07 11:08:10
+  metadata: 

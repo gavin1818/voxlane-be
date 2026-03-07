@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  device_identifier: MyString
+  platform: MyString
+  app_version: MyString
+  last_seen_at: 2026-03-07 11:08:13
+  metadata: 
+
+two:
+  user: two
+  device_identifier: MyString
+  platform: MyString
+  app_version: MyString
+  last_seen_at: 2026-03-07 11:08:13
+  metadata: 

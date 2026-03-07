@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  key: MyString
+  status: MyString
+  source: MyString
+  active_from: 2026-03-07 11:08:11
+  active_until: 2026-03-07 11:08:11
+  trial_ends_at: 2026-03-07 11:08:11
+  last_synced_at: 2026-03-07 11:08:11
+  metadata: 
+
+two:
+  user: two
+  key: MyString
+  status: MyString
+  source: MyString
+  active_from: 2026-03-07 11:08:11
+  active_until: 2026-03-07 11:08:11
+  trial_ends_at: 2026-03-07 11:08:11
+  last_synced_at: 2026-03-07 11:08:11
+  metadata: 
