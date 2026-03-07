@@ -1,0 +1,88 @@
+<% entitlement = current_entitlement %>
+<% status_class = if entitlement&.access_granted?
+  entitlement.status == "trialing" ? "status status--trialing" : "status status--active"
+else
+  "status status--inactive"
+end %>
+<% status_label = if entitlement&.access_granted?
+  entitlement.status == "trialing" ? "Trial active" : "Pro active"
+else
+  "Access inactive"
+end %>
+
+<section class="hero">
+  <span class="hero__eyebrow">Account</span>
+  <h1 class="hero__title">Your billing, trial, and device access live here.</h1>
+  <p class="hero__copy">
+    The website, webhook sync, and macOS app all read the same entitlement record.
+    If you just paid, the desktop app can refresh access as soon as the Stripe webhook lands.
+  </p>
+
+  <div class="button-row">
+    <% if entitlement&.status == "active" %>
+      <%= button_to "Manage billing",
+        billing_portal_path(return_url: account_url),
+        method: :post,
+        class: "button button--primary" %>
+    <% else %>
+      <%= button_to "Open checkout",
+        checkout_path(
+          success_url: account_url(checkout: "success"),
+          cancel_url: pricing_url(checkout: "cancelled")
+        ),
+        method: :post,
+        class: "button button--primary" %>
+    <% end %>
+    <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download macOS app</a>
+  </div>
+</section>
+
+<section class="section-card">
+  <div class="button-row" style="justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div>
+      <span class="kicker">Entitlement</span>
+      <h2 style="margin-top: 6px;">Current access state</h2>
+    </div>
+    <span class="<%= status_class %>"><%= status_label %></span>
+  </div>
+
+  <div class="meta-grid">
+    <div class="meta-card">
+      <span class="meta-card__label">Email</span>
+      <span class="meta-card__value"><%= current_user.email %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Status</span>
+      <span class="meta-card__value"><%= entitlement&.status || "inactive" %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Trial ends</span>
+      <span class="meta-card__value">
+        <%= entitlement&.trial_ends_at&.strftime("%b %-d, %Y") || "n/a" %>
+      </span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Last synced</span>
+      <span class="meta-card__value">
+        <%= entitlement&.last_synced_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %>
+      </span>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 18px;">
+    <div class="grid-card">
+      <h3>Desktop app flow</h3>
+      <p class="lede">
+        Sign in with the same email inside the app. Voxlane will restore your session, register the device,
+        and unlock dictation whenever this entitlement is active or trialing.
+      </p>
+    </div>
+    <div class="grid-card">
+      <h3>Update delivery</h3>
+      <p class="lede">
+        Direct macOS releases are published through Sparkle. The app checks
+        <code><%= AppConfig.sparkle_appcast_url %></code> for signed updates.
+      </p>
+    </div>
+  </div>
+</section>

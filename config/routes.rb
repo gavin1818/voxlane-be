@@ -1,5 +1,16 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
+  root "web/pages#pricing"
+  get "pricing", to: "web/pages#pricing", as: :pricing
+  get "account", to: "web/pages#account", as: :account
+  get "login", to: "web/sessions#new", as: :login
+  post "login/otp", to: "web/sessions#create_otp", as: :login_otp
+  post "login/verify", to: "web/sessions#create", as: :login_verify
+  delete "logout", to: "web/sessions#destroy", as: :logout
+  post "checkout", to: "web/billing#checkout", as: :checkout
+  post "billing/portal", to: "web/billing#portal", as: :billing_portal
+  get "appcast.xml", to: "web/appcasts#show", defaults: { format: :xml }, as: :appcast
+  get "releases/latest", to: "web/pages#release_notes", as: :release_notes
 
   namespace :api do
     namespace :v1 do

@@ -15,6 +15,7 @@ Rails API backend for Voxlane website billing and desktop-app entitlements.
 - Authenticates users from Supabase bearer tokens
 - Proxies email OTP auth for desktop clients
 - Creates or updates local `users`
+- Serves website pages for login, pricing, account, release notes, and Sparkle appcast
 - Creates Stripe Checkout sessions for subscriptions
 - Creates Stripe Customer Portal sessions for self-service billing
 - Processes Stripe webhooks and syncs subscriptions
@@ -25,6 +26,17 @@ Rails API backend for Voxlane website billing and desktop-app entitlements.
 ## API Endpoints
 
 - `GET /up`
+- `GET /`
+- `GET /pricing`
+- `GET /account`
+- `GET /login`
+- `POST /login/otp`
+- `POST /login/verify`
+- `DELETE /logout`
+- `POST /checkout`
+- `POST /billing/portal`
+- `GET /appcast.xml`
+- `GET /releases/latest`
 - `POST /api/v1/auth/otp`
 - `POST /api/v1/auth/verify`
 - `POST /api/v1/auth/refresh`
@@ -57,6 +69,17 @@ Main variables:
 - `CORS_ALLOWED_ORIGINS`
 - `TRIAL_DAYS`
 - `ENTITLEMENT_KEY`
+- `APP_DOWNLOAD_URL`
+- `STRIPE_PRICE_LABEL`
+- `SPARKLE_DOWNLOAD_URL`
+- `SPARKLE_DOWNLOAD_LENGTH`
+- `SPARKLE_EDDSA_SIGNATURE`
+- `SPARKLE_LATEST_VERSION`
+- `SPARKLE_LATEST_BUILD`
+- `SPARKLE_MINIMUM_SYSTEM_VERSION`
+- `SPARKLE_RELEASE_NOTES_URL`
+- `SPARKLE_RELEASE_NOTES_ITEMS`
+- `SPARKLE_PUBLISHED_AT`
 
 ## Local Setup
 
@@ -98,11 +121,21 @@ Relevant events handled:
 
 ## Website Billing Flow
 
-1. Website calls `POST /api/v1/billing/checkout_sessions`.
-2. Backend creates or reuses the Stripe customer for the authenticated user.
-3. Website redirects the user to Stripe Checkout.
-4. Stripe webhook updates `subscriptions` and `entitlements`.
-5. Website calls `POST /api/v1/billing/portal_sessions` for manage/cancel.
+1. User signs in on `/login` using Supabase email OTP.
+2. Rails stores Supabase access and refresh tokens in a cookie-backed session.
+3. `/pricing` and `/account` render the current entitlement status directly from the backend.
+4. Website posts to `/checkout` or `/billing/portal`.
+5. Backend creates or reuses the Stripe customer for the authenticated user and redirects to Stripe.
+6. Stripe webhook updates `subscriptions` and `entitlements`.
+7. The macOS app and website both see the same entitlement on the next refresh.
+
+## Sparkle Release Flow
+
+1. Build, sign, notarize, and upload the direct macOS release zip.
+2. Generate an EdDSA signature for the archive.
+3. Set `SPARKLE_*` environment variables in the backend.
+4. `GET /appcast.xml` serves the signed appcast entry Sparkle consumes.
+5. `GET /releases/latest` serves release notes linked from the appcast.
 
 ## Data Model
 

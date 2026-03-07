@@ -1,0 +1,44 @@
+<section class="hero">
+  <span class="hero__eyebrow">Account Access</span>
+  <h1 class="hero__title">Sign in to start your 7-day Voxlane trial.</h1>
+  <p class="hero__copy">
+    Use the same email you use in the macOS app. The website and desktop client both
+    rely on the same Supabase identity and server-side entitlement record.
+  </p>
+
+  <div class="split">
+    <div class="section-card stack">
+      <span class="kicker">Step 1</span>
+      <h2>Send a 6-digit code</h2>
+      <p>No password flow. Enter your email and we will send a short-lived login code.</p>
+      <%= form_with url: login_otp_path, scope: :auth, method: :post do |form| %>
+        <div class="field">
+          <%= form.label :email, "Email" %>
+          <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
+        </div>
+        <div class="button-row" style="margin-top: 16px;">
+          <%= form.submit "Send code", class: "button button--primary" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="section-card stack">
+      <span class="kicker">Step 2</span>
+      <h2>Verify and continue</h2>
+      <p>Paste the code from your inbox to open your account dashboard and billing controls.</p>
+      <%= form_with url: login_verify_path, scope: :auth, method: :post do |form| %>
+        <div class="field">
+          <%= form.label :email, "Email" %>
+          <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
+        </div>
+        <div class="field" style="margin-top: 14px;">
+          <%= form.label :token, "6-digit code" %>
+          <%= form.text_field :token, required: true, inputmode: "numeric", autocomplete: "one-time-code", placeholder: "123456" %>
+        </div>
+        <div class="button-row" style="margin-top: 16px;">
+          <%= form.submit "Verify and continue", class: "button button--primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

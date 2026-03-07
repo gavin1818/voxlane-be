@@ -1,0 +1,66 @@
+<section class="hero">
+  <span class="hero__eyebrow">Pricing</span>
+  <h1 class="hero__title">One account, one 7-day trial, one Pro plan.</h1>
+  <p class="hero__copy">
+    Voxlane now sells directly from <%= URI.parse(AppConfig.frontend_url).host %>. Sign in once,
+    keep your trial on the account, pay through Stripe, and let the Mac app sync entitlement automatically.
+  </p>
+
+  <div class="button-row">
+    <% if authenticated? %>
+      <a class="button button--secondary" href="<%= account_path %>">Open account</a>
+      <%= button_to "Open Stripe checkout",
+        checkout_path(
+          success_url: account_url(checkout: "success"),
+          cancel_url: pricing_url(checkout: "cancelled")
+        ),
+        method: :post,
+        class: "button button--primary" %>
+    <% else %>
+      <a class="button button--primary" href="<%= login_path %>">Sign in to start trial</a>
+      <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download macOS app</a>
+    <% end %>
+  </div>
+
+  <div class="stats">
+    <span class="pill">7-day account trial</span>
+    <span class="pill">Stripe checkout + portal</span>
+    <span class="pill">Sparkle auto updates</span>
+  </div>
+</section>
+
+<div class="grid">
+  <section class="grid-card">
+    <span class="kicker">Plan</span>
+    <h2>Voxlane Pro</h2>
+    <p class="lede">
+      <strong><%= AppConfig.stripe_price_label %></strong><br>
+      Monthly billing on <%= URI.parse(AppConfig.frontend_url).host %>
+    </p>
+    <ul style="margin-top: 16px;">
+      <li>Account-based free trial that follows the user across devices</li>
+      <li>Hosted checkout and self-service billing via Stripe</li>
+      <li>Direct download with Sparkle-powered in-app updates</li>
+    </ul>
+  </section>
+
+  <section class="grid-card">
+    <span class="kicker">What changed</span>
+    <h2>No more App Store lock-in</h2>
+    <ul>
+      <li>The macOS app signs in first, then requests entitlement from the backend</li>
+      <li>Trial and Pro access live on the server instead of in device-local App Store receipts</li>
+      <li>Billing and cancellations happen on the web without waiting for App Store review cycles</li>
+    </ul>
+  </section>
+
+  <section class="grid-card">
+    <span class="kicker">Operations</span>
+    <h2>Release workflow</h2>
+    <ul>
+      <li>Upload a notarized build</li>
+      <li>Publish a signed Sparkle appcast item</li>
+      <li>Users get in-app update prompts without redownloading manually</li>
+    </ul>
+  </section>
+</div>

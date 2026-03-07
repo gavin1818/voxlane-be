@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= AppConfig.app_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <style>
+      :root {
+        --bg: #f3efe8;
+        --bg-accent: #dfe9f5;
+        --card: rgba(255, 255, 255, 0.84);
+        --card-strong: rgba(255, 255, 255, 0.94);
+        --ink: #102033;
+        --muted: #566273;
+        --line: rgba(16, 32, 51, 0.1);
+        --primary: #1466ff;
+        --primary-soft: rgba(20, 102, 255, 0.12);
+        --success: #197347;
+        --warning: #9c5a00;
+        --shadow: 0 18px 44px rgba(16, 32, 51, 0.12);
+        --radius-lg: 28px;
+        --radius-md: 18px;
+        --radius-sm: 12px;
+        --font-sans: "SF Pro Display", "Avenir Next", "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--font-sans);
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 42%),
+          linear-gradient(135deg, var(--bg) 0%, #eef4fb 52%, var(--bg-accent) 100%);
+      }
+
+      a { color: inherit; text-decoration: none; }
+
+      .shell {
+        width: min(1180px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 24px 0 56px;
+      }
+
+      .shell__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 22px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(16px);
+        box-shadow: var(--shadow);
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .brand__name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand__tag {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .nav__link {
+        color: var(--muted);
+        padding: 10px 14px;
+        border-radius: 999px;
+      }
+
+      .nav__link:hover { background: rgba(255, 255, 255, 0.8); }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid var(--line);
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .flash-stack {
+        display: grid;
+        gap: 12px;
+        margin: 18px 0 0;
+      }
+
+      .flash {
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--line);
+        background: var(--card-strong);
+      }
+
+      .flash--notice { border-color: rgba(25, 115, 71, 0.18); color: var(--success); }
+      .flash--alert { border-color: rgba(156, 90, 0, 0.18); color: var(--warning); }
+
+      .hero,
+      .section-card,
+      .grid-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: 28px;
+        display: grid;
+        gap: 22px;
+        margin-top: 22px;
+      }
+
+      .hero__eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      .hero__title {
+        margin: 0;
+        font-size: clamp(2.4rem, 5vw, 4.3rem);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+        max-width: 11ch;
+      }
+
+      .hero__copy,
+      .lede,
+      .meta,
+      .stack > p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .button-row,
+      .stats,
+      .grid {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .button,
+      .button_to button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      }
+
+      .button:hover,
+      .button_to button:hover {
+        transform: translateY(-1px);
+      }
+
+      .button--primary,
+      .button_to .button--primary {
+        background: var(--ink);
+        color: white;
+      }
+
+      .button--secondary,
+      .button_to .button--secondary {
+        background: rgba(255, 255, 255, 0.84);
+        border-color: var(--line);
+        color: var(--ink);
+      }
+
+      .button_to { margin: 0; }
+
+      .grid {
+        margin-top: 20px;
+        align-items: stretch;
+      }
+
+      .grid-card {
+        flex: 1 1 280px;
+        padding: 22px;
+      }
+
+      .grid-card h2,
+      .grid-card h3,
+      .section-card h2,
+      .section-card h3 {
+        margin: 0 0 12px;
+      }
+
+      .grid-card ul,
+      .section-card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .section-card {
+        padding: 24px;
+        margin-top: 20px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+        gap: 18px;
+        margin-top: 20px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field label {
+        font-weight: 600;
+      }
+
+      .field input {
+        width: 100%;
+        min-height: 48px;
+        padding: 0 16px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.92);
+        font: inherit;
+      }
+
+      .kicker {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+      }
+
+      .status--active { background: rgba(25, 115, 71, 0.12); color: var(--success); }
+      .status--trialing { background: rgba(20, 102, 255, 0.12); color: var(--primary); }
+      .status--inactive { background: rgba(156, 90, 0, 0.12); color: var(--warning); }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+      }
+
+      .meta-card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .meta-card__label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .meta-card__value {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+
+      @media (max-width: 820px) {
+        .shell { width: min(100vw - 20px, 100%); padding-top: 12px; }
+        .shell__header { align-items: flex-start; }
+        .split { grid-template-columns: 1fr; }
+        .hero__title { max-width: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="shell__header">
+        <a class="brand" href="<%= pricing_path %>">
+          <span class="brand__name"><%= AppConfig.app_name %></span>
+          <span class="brand__tag">Account trial, Stripe billing, direct macOS delivery</span>
+        </a>
+
+        <nav class="nav">
+          <a class="nav__link" href="<%= pricing_path %>">Pricing</a>
+          <% if authenticated? %>
+            <a class="nav__link" href="<%= account_path %>">Account</a>
+            <span class="pill"><%= current_user_email %></span>
+            <%= button_to "Sign out", logout_path, method: :delete, class: "button button--secondary" %>
+          <% else %>
+            <a class="button button--secondary" href="<%= login_path %>">Sign in</a>
+          <% end %>
+        </nav>
+      </header>
+
+      <% if notice.present? || alert.present? || flash.now[:notice].present? || flash.now[:alert].present? %>
+        <div class="flash-stack">
+          <% [notice, flash.now[:notice]].compact.each do |message| %>
+            <div class="flash flash--notice"><%= message %></div>
+          <% end %>
+          <% [alert, flash.now[:alert]].compact.each do |message| %>
+            <div class="flash flash--alert"><%= message %></div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <main>
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

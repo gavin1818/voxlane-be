@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+     xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"
+     xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title><%= AppConfig.app_name %> Updates</title>
+    <link><%= AppConfig.frontend_url %></link>
+    <description>Signed updates for the <%= AppConfig.app_name %> macOS app.</description>
+    <language>en</language>
+    <item>
+      <title><%= AppConfig.app_name %> <%= AppConfig.sparkle_latest_version %></title>
+      <pubDate><%= @published_at %></pubDate>
+      <sparkle:releaseNotesLink><%= AppConfig.sparkle_release_notes_url %></sparkle:releaseNotesLink>
+      <description><![CDATA[
+        <p><%= AppConfig.app_name %> <%= AppConfig.sparkle_latest_version %> is now available.</p>
+        <ul>
+          <% @release_items.each do |item| %>
+            <li><%= item %></li>
+          <% end %>
+        </ul>
+      ]]></description>
+      <enclosure
+        url="<%= AppConfig.sparkle_download_url %>"
+        sparkle:version="<%= AppConfig.sparkle_latest_build %>"
+        sparkle:shortVersionString="<%= AppConfig.sparkle_latest_version %>"
+        sparkle:edSignature="<%= AppConfig.sparkle_eddsa_signature %>"
+        sparkle:minimumSystemVersion="<%= AppConfig.sparkle_minimum_system_version %>"
+        length="<%= AppConfig.sparkle_download_length %>"
+        type="application/octet-stream" />
+    </item>
+  </channel>
+</rss>

@@ -35,8 +35,69 @@ class AppConfig
       ENV.fetch("TRIAL_DAYS", 7).to_i
     end
 
+    def app_name
+      ENV.fetch("APP_NAME", "Voxlane")
+    end
+
+    def app_download_url
+      ENV.fetch("APP_DOWNLOAD_URL", frontend_url)
+    end
+
+    def stripe_price_label
+      ENV.fetch("STRIPE_PRICE_LABEL", "Shown at checkout")
+    end
+
     def stripe_price_id
       ENV.fetch("STRIPE_PRO_PRICE_ID")
+    end
+
+    def sparkle_appcast_url
+      ENV.fetch("SPARKLE_APPCAST_URL", "#{frontend_url}/appcast.xml")
+    end
+
+    def sparkle_latest_version
+      ENV.fetch("SPARKLE_LATEST_VERSION", ENV.fetch("APP_VERSION", "1.0.0"))
+    end
+
+    def sparkle_latest_build
+      ENV.fetch("SPARKLE_LATEST_BUILD", ENV.fetch("APP_BUILD", "1"))
+    end
+
+    def sparkle_download_url
+      ENV.fetch("SPARKLE_DOWNLOAD_URL", app_download_url)
+    end
+
+    def sparkle_download_length
+      ENV.fetch("SPARKLE_DOWNLOAD_LENGTH", "0")
+    end
+
+    def sparkle_eddsa_signature
+      ENV.fetch("SPARKLE_EDDSA_SIGNATURE", "")
+    end
+
+    def sparkle_minimum_system_version
+      ENV.fetch("SPARKLE_MINIMUM_SYSTEM_VERSION", "14.0")
+    end
+
+    def sparkle_release_notes_url
+      ENV.fetch("SPARKLE_RELEASE_NOTES_URL", "#{frontend_url}/releases/latest")
+    end
+
+    def sparkle_release_notes_items
+      ENV.fetch(
+        "SPARKLE_RELEASE_NOTES_ITEMS",
+        "Account-based login|Stripe billing|Website checkout|Sparkle auto updates"
+      ).split("|").map(&:strip).reject(&:empty?)
+    end
+
+    def sparkle_published_at
+      raw_value = ENV["SPARKLE_PUBLISHED_AT"].presence
+      timestamp = raw_value.present? ? Time.zone.parse(raw_value) : Time.current
+      timestamp&.rfc2822 || Time.current.rfc2822
+    end
+
+    def sparkle_ready?
+      sparkle_download_url.present? && sparkle_eddsa_signature.present?
     end
 
     def validated_return_url(candidate, fallback:)

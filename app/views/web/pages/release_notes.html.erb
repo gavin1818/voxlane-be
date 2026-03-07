@@ -1,0 +1,17 @@
+<section class="hero">
+  <span class="hero__eyebrow">Release Notes</span>
+  <h1 class="hero__title"><%= AppConfig.app_name %> <%= AppConfig.sparkle_latest_version %></h1>
+  <p class="hero__copy">
+    Build <%= AppConfig.sparkle_latest_build %> is the current direct-download release used by Sparkle.
+  </p>
+</section>
+
+<section class="section-card">
+  <span class="kicker">Highlights</span>
+  <h2>What shipped in this release</h2>
+  <ul style="margin-top: 12px;">
+    <% @release_items.each do |item| %>
+      <li><%= item %></li>
+    <% end %>
+  </ul>
+</section>
