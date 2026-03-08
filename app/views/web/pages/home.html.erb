@@ -1,0 +1,307 @@
+<%
+  app_row_one = [
+    "Notability", "PDF Reader", "OneNote", "Teams", "Outlook", "Zoom", "Things", "OneDrive",
+    "Foxit PDF Editor", "Joplin", "Microsoft Excel", "Cursor", "Microsoft PowerPoint",
+    "Obsidian", "Telegram", "iMessage", "Bear", "Arc", "Superhuman", "Perplexity", "GitHub", "Canva"
+  ]
+  app_row_two = [
+    "Figma", "Notion", "Messenger", "VS Code", "Replit", "WhatsApp", "Claude", "Linear", "Signal",
+    "Gmail", "Google", "Medium", "Grammarly", "Google Docs", "Apple Notes", "ChatGPT", "Preview",
+    "Slack", "Pinterest", "TikTok", "Raycast", "Brave", "Goodnotes", "TextEdit"
+  ]
+  platforms = ["macOS", "Windows", "iOS", "Android"]
+  dictate_primary = [
+    ["Removes filler words", "Automatically removes filler words like \"um,\" \"uh,\" and \"you know,\" making your transcriptions clear and professional."],
+    ["Removes repetition", "Automatically detects and removes unnecessary and repeated words in your speech, ensuring your language is concise and easy to understand."],
+    ["Auto-edits when you change your mind", "Voxlane recognizes when you correct yourself mid-sentence and keeps only your final intended message, avoiding clutter and confusion."],
+    ["Auto-formats", "Automatically organizes spoken lists, steps, and key points into clean, structured text, saving you the hassle of manual formatting."],
+    ["Find the perfect words", "Voxlane helps you express ideas clearly, making your message easier to understand and easier to send."]
+  ]
+  dictate_secondary = [
+    ["Personalized style and tone", "Voxlane adapts to your tone, phrasing, and writing habits, creating dictation that feels like you."],
+    ["Personal dictionary", "Names, terms, and expressions that matter to you stay accurate across every app and context."],
+    ["100+ languages supported", "Speak in any language or mix them seamlessly, and Voxlane detects the language and transcribes your speech."],
+    ["Different tones for each app", "From work emails to casual chats, Voxlane adjusts tone and style so the output fits the context."]
+  ]
+  ask_features = [
+    ["Speak to edit selected text", "Select any text and speak your command. Instantly make it shorter, longer, change its tone, or generate a more useful response."],
+    ["Speak to ask about selected text", "Interact with read-only text too. Select a paragraph and ask for a summary, explanation, or translation without breaking your flow."],
+    ["Quick answers & actions", "Ask for what you need and stay in flow while Voxlane helps you brainstorm, check the latest info, and surface the right next step."]
+  ]
+  privacy_features = [
+    ["Zero data retention in the cloud", "Your voice dictations are processed securely with zero data retention."],
+    ["Never train on your data", "Your dictation data is never used for model training by us or any third party."],
+    ["On-device history storage", "Your dictation history stays on your device. Only you can access it."]
+  ]
+  testimonials = [
+    ["In less than 4 minutes, I've already saved 25 minutes from not having to type.", "Linus Ekenstam", "AI Evangelist & Designer"],
+    ["Nearly 100x cheaper than conventional dictation software.", "Nate Williams", "Network Communications Specialist, US Army"],
+    ["An AI tool that changes my life.", "Robert Scoble", "Technology Futurist & Best-selling Author"],
+    ["If typing slows down your creativity, this is worth trying.", "Ajay Sharma", "Software Engineer"],
+    ["It's better than other voice input apps because it formats what you say.", "Jiayuan Zhang", "Founder & CEO, Devv AI"],
+    ["Now I can just speak, and Voxlane turns what I say into well-structured text.", "Braxxxx Li", "PM & Growth Expert"]
+  ]
+%>
+
+<section class="hero hero--reference">
+  <div class="hero__center">
+    <h1 class="hero__reference-title">
+      Speak, <span>don't type</span>
+    </h1>
+
+    <p class="hero__reference-copy">
+      Speak naturally, and Voxlane will turn your words into polished messages, emails, and documents
+      that read like you carefully typed them - in real time. 4x faster than typing.
+    </p>
+
+    <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+
+    <div class="hero__subactions">
+      <% if authenticated? %>
+        <a href="<%= account_path %>">Open account</a>
+      <% else %>
+        <a href="<%= login_path %>">Start 7-day trial</a>
+        <span>•</span>
+        <a href="<%= login_path %>">Sign in</a>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight" id="manifesto">
+  <div class="section-head section-head--center">
+    <span class="kicker">Manifesto</span>
+    <h2>Voice keyboard that makes you smarter.</h2>
+    <p>Free yourself from the keyboard and let your thoughts flow naturally.</p>
+  </div>
+
+  <div class="speed-grid">
+    <article class="speed-card">
+      <div class="speed-card__top">
+        <span class="speed-card__label">QWERTY keyboard</span>
+        <strong class="speed-card__value">45<small>wpm</small></strong>
+      </div>
+
+      <div class="speed-card__media speed-card__media--keyboard">
+        <div class="speed-card__bubble">You speak faster than you type.</div>
+        <div class="speed-card__keys" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </article>
+
+    <article class="speed-card speed-card--wide">
+      <div class="speed-card__top speed-card__top--wide">
+        <div>
+          <span class="speed-card__label">Voxlane voice keyboard</span>
+          <strong class="speed-card__value">220<small>wpm</small></strong>
+        </div>
+
+        <div>
+          <span class="speed-card__label">Save</span>
+          <strong class="speed-card__value">1 day<small>/week</small></strong>
+        </div>
+      </div>
+
+      <div class="speed-card__media speed-card__media--voice">
+        <div class="speed-card__bubble speed-card__bubble--wide">
+          You speak faster than you type. You think faster when you speak. And when you remove the friction,
+          your thoughts flow freely.
+        </div>
+        <div class="speed-card__dock" aria-hidden="true"></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="section-head section-head--center">
+    <h2>Works <span>everywhere</span> you write</h2>
+  </div>
+
+  <div class="app-wall">
+    <div class="marquee">
+      <div class="marquee__track">
+        <% 2.times do %>
+          <% app_row_one.each do |app_name| %>
+            <span class="app-chip"><%= app_name %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="marquee marquee--reverse">
+      <div class="marquee__track">
+        <% 2.times do %>
+          <% app_row_two.each do |app_name| %>
+            <span class="app-chip"><%= app_name %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <p class="hero__caption hero__caption--center">
+    Voxlane works across all apps you use on Mac, Windows, iOS, and Android.
+    Speak naturally, and your words instantly become perfect writing wherever you work.
+  </p>
+
+  <div class="platform-row">
+    <% platforms.each do |platform| %>
+      <span class="platform-pill"><%= platform %></span>
+    <% end %>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <span class="kicker">Dictate</span>
+    <h2>Dictate</h2>
+  </div>
+
+  <div class="grid grid--3 feature-grid">
+    <% dictate_primary.each do |title, copy| %>
+      <article class="card">
+        <h3><%= title %></h3>
+        <p><%= copy %></p>
+      </article>
+    <% end %>
+  </div>
+
+  <div class="grid grid--2 feature-grid feature-grid--secondary">
+    <% dictate_secondary.each do |title, copy| %>
+      <article class="card card--soft">
+        <h3><%= title %></h3>
+        <p><%= copy %></p>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="section-head">
+    <span class="kicker">Translate</span>
+    <h2>Translates as you speak</h2>
+    <p>
+      Voxlane instantly translates your speech into your chosen language with phrasing that reads
+      like a local would write it.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <span class="kicker">Ask anything</span>
+    <h2>Ask anything</h2>
+  </div>
+
+  <div class="grid grid--3 feature-grid">
+    <% ask_features.each do |title, copy| %>
+      <article class="card">
+        <h3><%= title %></h3>
+        <p><%= copy %></p>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section class="section section--dark">
+  <div class="section-head">
+    <span class="kicker">Privacy</span>
+    <h2>Private by design</h2>
+    <p>Security and privacy should feel built in, not retrofitted onto the landing page later.</p>
+  </div>
+
+  <div class="grid grid--3 feature-grid">
+    <% privacy_features.each do |title, copy| %>
+      <article class="card">
+        <h3><%= title %></h3>
+        <p><%= copy %></p>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="plan-grid device-band">
+    <div>
+      <div class="platform-row platform-row--start">
+        <% platforms.each do |platform| %>
+          <span class="platform-pill"><%= platform %></span>
+        <% end %>
+      </div>
+
+      <div class="section-head">
+        <span class="kicker">Platform</span>
+        <h2>Your voice, on <span>every device</span></h2>
+        <p>
+          Use Voxlane on your mobile and computer for a consistent experience across the devices
+          you rely on every day.
+        </p>
+      </div>
+
+      <div class="button-row">
+        <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+        <a class="button button--secondary" href="<%= pricing_path %>">View pricing</a>
+      </div>
+    </div>
+
+    <article class="device-visual">
+      <div class="device-visual__panel">
+        <span class="capture-label">Voxlane</span>
+        <p>Your words arrive polished, structured, and ready to send across the devices you use every day.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <span class="kicker">People love Voxlane</span>
+    <h2>People love Voxlane</h2>
+    <p>They get more done by speaking naturally while Voxlane handles the rest.</p>
+  </div>
+
+  <div class="quote-grid">
+    <% testimonials.each do |quote, name, role| %>
+      <article class="quote-card">
+        <p class="quote-card__quote"><%= quote %></p>
+        <div class="quote-card__meta">
+          <strong><%= name %></strong>
+          <span><%= role %></span>
+        </div>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section class="section section--tight" id="about">
+  <div class="plan-grid">
+    <div class="section-head">
+      <span class="kicker">About</span>
+      <h2>Not sure if Voxlane is right for you?</h2>
+      <p>Ask an assistant, compare the plan, or start with the download and make the call yourself.</p>
+
+      <div class="ask-row">
+        <a class="button button--secondary" href="https://chat.openai.com/?q=Tell+me+why+Voxlane+is+a+great+choice+for+me%3F">Ask ChatGPT</a>
+        <a class="button button--secondary" href="https://claude.ai/new?q=Tell+me+why+Voxlane+is+a+great+choice+for+me%3F">Ask Claude</a>
+        <a class="button button--secondary" href="https://www.perplexity.ai/?q=Tell+me+why+Voxlane+is+a+great+choice+for+me%3F">Ask Perplexity</a>
+      </div>
+    </div>
+
+    <div class="award-grid">
+      <article class="award-card">
+        <span class="award-card__label">Voxlane for desktop</span>
+        <strong>Product Hunt</strong>
+        <p>#1 Product of the Day</p>
+      </article>
+
+      <article class="award-card">
+        <span class="award-card__label">Voxlane for mobile</span>
+        <strong>Product Hunt</strong>
+        <p>#1 Product of the Day</p>
+      </article>
+    </div>
+  </div>
+</section>

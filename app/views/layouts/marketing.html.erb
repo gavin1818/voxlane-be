@@ -1,0 +1,89 @@
+<% home_page = controller_path == "web/pages" && action_name == "home" %>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for?(:title) ? "#{content_for(:title)} | #{AppConfig.app_name}" : AppConfig.app_name %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Voxlane turns fast speech into polished writing for macOS.">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/web.css">
+  </head>
+
+  <body class="web-shell page-<%= action_name.dasherize %>">
+    <div class="shell">
+      <header class="topbar <%= "topbar--reference" if home_page %>">
+        <a class="brand" href="<%= root_path %>">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__copy">
+            <span class="brand__name"><%= AppConfig.app_name %></span>
+            <span class="brand__tag"><%= home_page ? "AI voice dictation" : "Voice-first writing for macOS" %></span>
+          </span>
+        </a>
+
+        <nav class="topbar__nav">
+          <a class="nav-link" href="<%= root_path(anchor: "manifesto") %>">Manifesto</a>
+          <a class="nav-link" href="<%= pricing_path %>">Pricing</a>
+          <a class="nav-link" href="<%= root_path(anchor: "about") %>">About</a>
+          <% unless home_page %>
+            <a class="nav-link" href="<%= release_notes_path %>">Release notes</a>
+          <% end %>
+        </nav>
+
+        <div class="topbar__actions">
+          <% if home_page %>
+            <% if authenticated? %>
+              <a class="nav-link nav-link--quiet" href="<%= account_path %>">Account</a>
+            <% end %>
+            <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+          <% else %>
+            <% if authenticated? %>
+              <span class="pill pill--ghost"><%= current_user_email %></span>
+              <a class="button button--secondary" href="<%= account_path %>">Account</a>
+              <%= button_to "Sign out", logout_path, method: :delete, class: "button button--ghost" %>
+            <% else %>
+              <a class="nav-link nav-link--quiet" href="<%= login_path %>">Sign in</a>
+              <a class="button button--primary" href="<%= login_path %>">Start trial</a>
+            <% end %>
+          <% end %>
+        </div>
+      </header>
+
+      <% if notice.present? || alert.present? || flash.now[:notice].present? || flash.now[:alert].present? %>
+        <div class="flash-stack">
+          <% [notice, flash.now[:notice]].compact.each do |message| %>
+            <div class="flash flash--notice"><%= message %></div>
+          <% end %>
+          <% [alert, flash.now[:alert]].compact.each do |message| %>
+            <div class="flash flash--alert"><%= message %></div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <main>
+        <%= yield %>
+      </main>
+
+      <footer class="footer">
+        <div>
+          <strong><%= AppConfig.app_name %></strong>
+          <p>© 2026 <%= AppConfig.app_name %></p>
+        </div>
+
+        <div class="footer__links">
+          <a href="<%= root_path(anchor: "manifesto") %>">Manifesto</a>
+          <a href="<%= pricing_path %>">Pricing</a>
+          <a href="<%= root_path(anchor: "about") %>">About</a>
+          <a href="<%= release_notes_path %>">Release notes</a>
+          <% unless home_page %>
+            <a href="<%= login_path %>">Sign in</a>
+          <% end %>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -2,7 +2,7 @@ class Web::BaseController < ActionController::Base
   around_action :with_current_context
   before_action :load_web_session
 
-  layout "web"
+  layout "marketing"
   protect_from_forgery with: :exception
 
   helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email

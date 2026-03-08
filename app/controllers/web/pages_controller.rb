@@ -2,7 +2,11 @@ class Web::PagesController < Web::BaseController
   before_action :authenticate_web_user!, only: :account
   before_action :apply_checkout_flash, only: %i[pricing account]
 
+  def home
+  end
+
   def pricing
+    render :plans
   end
 
   def account

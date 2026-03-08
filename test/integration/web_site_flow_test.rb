@@ -16,11 +16,20 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "home page renders" do
+    get root_path
+
+    assert_response :success
+    assert_includes response.body, "don't type"
+    assert_includes response.body, "Voxlane will turn your words into polished messages, emails, and documents"
+  end
+
   test "pricing page renders" do
     get pricing_path
 
     assert_response :success
-    assert_includes response.body, "Voxlane turns fast speech into clean, ready-to-send text."
+    assert_includes response.body, "One plan."
+    assert_includes response.body, "One billing home."
   end
 
   test "verify code signs user in and redirects to account" do

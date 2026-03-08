@@ -227,32 +227,32 @@ Add connect to a domain
 
 ### Domain Switch
 
-To switch your Dokku app to a custom domain (example using mura-ai.com):
+To switch your Dokku app to a custom domain (example using voxlane.io):
 
 1. **Set DNS Records**
-   - Add A record: `@` → `167.172.222.183`
-   - Add CNAME (optional): `www` → `mura-ai.com`
+   - Add A record: `@` → `146.190.241.57`
+   - Add CNAME (optional): `www` → `voxlane.io`
    - Wait 5-15 minutes for DNS propagation
 
 2. **Configure Dokku**
    ```bash
    # Set domain
-   dokku domains:set muraaibe mura-ai.com
+   dokku domains:set voxlane-be voxlane.io
    
    # For both www and non-www
-   dokku domains:set muraaibe mura-ai.com www.mura-ai.com
+   dokku domains:set voxlane-be voxlane.io www.voxlane.io
 
    # Setup SSL
    sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
    sudo dokku letsencrypt:cron-job --add # <- To enable auto-renew
-   dokku letsencrypt:set muraaibe email gavincdc@gmail.com
-   dokku letsencrypt:enable muraaibe
+   dokku letsencrypt:set voxlane-be email gavincdc@gmail.com
+   dokku letsencrypt:enable voxlane-be
    
    # Enable auto-renewal (optional)
    dokku letsencrypt:cron-job --add
    ```
 
-3. **Verify** by visiting `https://mura-ai.com`
+3. **Verify** by visiting `https://voxlane.io`
 
 ### SSL Certificate Issues
 
@@ -261,7 +261,7 @@ If you encounter "Not Secure" warnings or SSL certificate errors, follow these s
 #### 1. Check Certificate Status
 ```bash
 # Check certificate expiry
-ssh dokku@167.172.222.183 letsencrypt:list
+ssh dokku@146.190.241.57 letsencrypt:list
 
 # Should show certificate expiry date and time remaining
 ```
@@ -274,29 +274,29 @@ ssh dokku@167.172.222.183 letsencrypt:list
 #### 3. Renew Expired Certificate
 ```bash
 # Auto-renew certificate
-ssh dokku@167.172.222.183 letsencrypt:auto-renew muraaibe
+ssh dokku@146.190.241.57 letsencrypt:auto-renew voxlane-be
 
 # Or manually enable/renew
-ssh dokku@167.172.222.183 letsencrypt:enable muraaibe
+ssh dokku@146.190.241.57 letsencrypt:enable voxlane-be
 ```
 
 #### 4. Set Up Auto-Renewal (Prevent Future Issues)
 ```bash
 # Add cron job for automatic renewal
-ssh dokku@167.172.222.183 letsencrypt:cron-job --add
+ssh dokku@146.190.241.57 letsencrypt:cron-job --add
 
 # Verify cron job exists
-ssh dokku@167.172.222.183 crontab -l
+ssh dokku@146.190.241.57 crontab -l
 ```
 
 #### 5. Verify Fix
 ```bash
 # Check new certificate status
-ssh dokku@167.172.222.183 letsencrypt:list
+ssh dokku@146.190.241.57 letsencrypt:list
 
 # Test certificate from command line
-openssl s_client -connect mura-ai.com:443 -servername mura-ai.com < /dev/null 2>/dev/null | openssl x509 -noout -dates
+openssl s_client -connect voxlane.io:443 -servername voxlane.io < /dev/null 2>/dev/null | openssl x509 -noout -dates
 
-# Visit https://mura-ai.com in browser - should show green lock icon
+# Visit https://voxlane.io in browser - should show green lock icon
 ```
 ```
