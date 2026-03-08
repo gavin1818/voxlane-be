@@ -32,6 +32,14 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "One billing home."
   end
 
+  test "download page renders" do
+    get download_path
+
+    assert_response :success
+    assert_includes response.body, "Download latest build"
+    assert_includes response.body, AppConfig.sparkle_latest_version
+  end
+
   test "verify code signs user in and redirects to account" do
     with_stubbed_singleton_method(
       Auth::SupabaseOtpClient,

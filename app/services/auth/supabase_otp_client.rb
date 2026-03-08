@@ -20,7 +20,8 @@ module Auth
           method: Net::HTTP::Post,
           body: {
             email: email,
-            create_user: true
+            create_user: true,
+            email_redirect_to: AppConfig.auth_email_redirect_url
           }
         )
       end

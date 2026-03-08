@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   root "web/pages#home"
   get "pricing", to: "web/pages#pricing", as: :pricing
+  get "download", to: "web/pages#download", as: :download
   get "account", to: "web/pages#account", as: :account
   get "login", to: "web/sessions#new", as: :login
   post "login/otp", to: "web/sessions#create_otp", as: :login_otp

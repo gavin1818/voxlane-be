@@ -10,6 +10,10 @@ class AppConfig
       ENV.fetch("FRONTEND_URL", "http://localhost:3000")
     end
 
+    def auth_email_redirect_url
+      ENV["AUTH_EMAIL_REDIRECT_URL"].presence || "#{frontend_url.chomp("/")}/login"
+    end
+
     def allowed_origins
       configured = ENV.fetch("CORS_ALLOWED_ORIGINS", "")
         .split(",")

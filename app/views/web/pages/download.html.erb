@@ -1,0 +1,34 @@
+<section class="hero">
+  <span class="hero__eyebrow">Download</span>
+  <h1 class="hero__title">Get <%= AppConfig.app_name %> for macOS.</h1>
+  <p class="hero__copy">
+    Download the latest signed build, review what changed, and then sign in with the same account you use on voxlane.io.
+  </p>
+
+  <div class="button-row">
+    <a class="button button--primary" href="<%= AppConfig.sparkle_download_url %>">Download latest build</a>
+    <a class="button button--secondary" href="<%= release_notes_path %>">View release notes</a>
+    <a class="button button--secondary" href="<%= login_path %>">Sign in on the web</a>
+  </div>
+</section>
+
+<section class="section-card">
+  <div class="meta-grid">
+    <div class="meta-card">
+      <span class="meta-card__label">Latest version</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_latest_version %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Build</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_latest_build %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Minimum macOS</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_minimum_system_version %>+</span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Updates</span>
+      <span class="meta-card__value">Sparkle signed feed</span>
+    </div>
+  </div>
+</section>

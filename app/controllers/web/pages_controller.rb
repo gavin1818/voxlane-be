@@ -9,6 +9,9 @@ class Web::PagesController < Web::BaseController
     render :plans
   end
 
+  def download
+  end
+
   def account
   end
 

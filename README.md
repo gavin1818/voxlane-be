@@ -2,7 +2,9 @@
 
 Rails API backend for Voxlane website billing and desktop-app entitlements.
 
+## to access the production server and the dokku rails app server console
 ssh root@146.190.241.57
+dokku run voxlane-be rails console
 
 ## Stack
 
@@ -68,6 +70,7 @@ Main variables:
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRO_PRICE_ID`
 - `FRONTEND_URL`
+- `AUTH_EMAIL_REDIRECT_URL`
 - `CORS_ALLOWED_ORIGINS`
 - `TRIAL_DAYS`
 - `ENTITLEMENT_KEY`
@@ -130,6 +133,13 @@ Relevant events handled:
 5. Backend creates or reuses the Stripe customer for the authenticated user and redirects to Stripe.
 6. Stripe webhook updates `subscriptions` and `entitlements`.
 7. The macOS app and website both see the same entitlement on the next refresh.
+
+## Supabase Auth Setup
+
+- Set `Authentication -> URL Configuration -> Site URL` to your production site instead of the default `http://localhost:3000`.
+- Add your production login/callback URL to `Redirect URLs`.
+- Set `AUTH_EMAIL_REDIRECT_URL` in this backend if you want OTP signup confirmations to land on a specific page or app deep link.
+- Customize `Authentication -> Email Templates` so passwordless email uses `{{ .Token }}` instead of `{{ .ConfirmationURL }}` when you want a 6-digit code instead of a plain confirmation link.
 
 ## Sparkle Release Flow
 
