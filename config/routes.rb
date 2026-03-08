@@ -4,7 +4,11 @@ Rails.application.routes.draw do
   get "pricing", to: "web/pages#pricing", as: :pricing
   get "download", to: "web/pages#download", as: :download
   get "account", to: "web/pages#account", as: :account
+  patch "account/profile", to: "web/accounts#update_profile", as: :account_profile
   get "login", to: "web/sessions#new", as: :login
+  get "support", to: "web/pages#support", as: :support
+  get "privacy", to: "web/pages#privacy", as: :privacy
+  get "terms", to: "web/pages#terms", as: :terms
   post "login/otp", to: "web/sessions#create_otp", as: :login_otp
   post "login/verify", to: "web/sessions#create", as: :login_verify
   delete "logout", to: "web/sessions#destroy", as: :logout

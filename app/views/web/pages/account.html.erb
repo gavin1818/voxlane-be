@@ -9,13 +9,13 @@ end %>
 else
   "Access inactive"
 end %>
+<% subscription = @latest_subscription %>
 
 <section class="hero">
-  <span class="hero__eyebrow">Account</span>
-  <h1 class="hero__title">Your billing, trial, and device access live here.</h1>
+  <span class="hero__eyebrow">Account Center</span>
+  <h1 class="hero__title">Manage your profile, billing, devices, and support in one place.</h1>
   <p class="hero__copy">
-    The website, webhook sync, and macOS app all read the same entitlement record.
-    If you just paid, the desktop app can refresh access as soon as the Stripe webhook lands.
+    Your website account, Stripe subscription, and macOS entitlement all stay tied to the same Voxlane identity.
   </p>
 
   <div class="button-row">
@@ -33,56 +33,143 @@ end %>
         method: :post,
         class: "button button--primary" %>
     <% end %>
-    <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download macOS app</a>
+    <a class="button button--secondary" href="<%= download_path %>">Download macOS app</a>
+    <a class="button button--secondary" href="<%= support_path %>">Get support</a>
   </div>
 </section>
 
 <section class="section-card">
   <div class="button-row" style="justify-content: space-between; align-items: center; margin-bottom: 16px;">
     <div>
-      <span class="kicker">Entitlement</span>
-      <h2 style="margin-top: 6px;">Current access state</h2>
+      <span class="kicker">Profile</span>
+      <h2 style="margin-top: 6px;">Identity and account details</h2>
     </div>
     <span class="<%= status_class %>"><%= status_label %></span>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-card">
-      <span class="meta-card__label">Email</span>
-      <span class="meta-card__value"><%= current_user.email %></span>
+  <div class="split">
+    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+      <%= form_with url: account_profile_path, scope: :profile, method: :patch do |form| %>
+        <div class="field">
+          <%= form.label :display_name, "Display name" %>
+          <%= form.text_field :display_name, value: current_user.display_name, placeholder: "Your name" %>
+        </div>
+        <div class="field" style="margin-top: 14px;">
+          <label>Email</label>
+          <input type="email" value="<%= current_user.email %>" disabled>
+        </div>
+        <p class="meta" style="margin-top: 12px;">Email login is managed through Supabase passwordless auth.</p>
+        <div class="button-row" style="margin-top: 16px;">
+          <%= form.submit "Save profile", class: "button button--primary" %>
+        </div>
+      <% end %>
     </div>
+
+    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+      <div class="meta-grid">
+        <div class="meta-card">
+          <span class="meta-card__label">Email</span>
+          <span class="meta-card__value"><%= current_user.email %></span>
+        </div>
+        <div class="meta-card">
+          <span class="meta-card__label">Status</span>
+          <span class="meta-card__value"><%= entitlement&.status || "inactive" %></span>
+        </div>
+        <div class="meta-card">
+          <span class="meta-card__label">Member since</span>
+          <span class="meta-card__value"><%= current_user.created_at.strftime("%b %-d, %Y") %></span>
+        </div>
+        <div class="meta-card">
+          <span class="meta-card__label">Last seen</span>
+          <span class="meta-card__value"><%= current_user.last_seen_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-card">
+  <span class="kicker">Billing & Access</span>
+  <h2 style="margin-top: 6px;">Current entitlement and subscription state</h2>
+
+  <div class="meta-grid" style="margin-top: 16px;">
     <div class="meta-card">
-      <span class="meta-card__label">Status</span>
-      <span class="meta-card__value"><%= entitlement&.status || "inactive" %></span>
+      <span class="meta-card__label">Entitlement</span>
+      <span class="meta-card__value"><%= status_label %></span>
     </div>
     <div class="meta-card">
       <span class="meta-card__label">Trial ends</span>
-      <span class="meta-card__value">
-        <%= entitlement&.trial_ends_at&.strftime("%b %-d, %Y") || "n/a" %>
-      </span>
+      <span class="meta-card__value"><%= entitlement&.trial_ends_at&.strftime("%b %-d, %Y") || "n/a" %></span>
     </div>
     <div class="meta-card">
-      <span class="meta-card__label">Last synced</span>
-      <span class="meta-card__value">
-        <%= entitlement&.last_synced_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %>
-      </span>
+      <span class="meta-card__label">Subscription status</span>
+      <span class="meta-card__value"><%= subscription&.status || "none" %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Period end</span>
+      <span class="meta-card__value"><%= subscription&.current_period_end_at&.strftime("%b %-d, %Y") || "n/a" %></span>
     </div>
   </div>
 
   <div class="grid" style="margin-top: 18px;">
     <div class="grid-card">
-      <h3>Desktop app flow</h3>
+      <h3>Website billing flow</h3>
       <p class="lede">
-        Sign in with the same email inside the app. Voxlane will restore your session, register the device,
-        and unlock dictation whenever this entitlement is active or trialing.
+        Checkout and subscription management stay on the web through Stripe-hosted pages. The macOS app only opens those flows and refreshes access.
       </p>
     </div>
     <div class="grid-card">
-      <h3>Update delivery</h3>
+      <h3>Desktop entitlement flow</h3>
       <p class="lede">
-        Direct macOS releases are published through Sparkle. The app checks
-        <code><%= AppConfig.sparkle_appcast_url %></code> for signed updates.
+        After payment, the website and app both read the same server-side entitlement. If needed, reopen the app or click Refresh Access inside Voxlane.
       </p>
+    </div>
+  </div>
+</section>
+
+<section class="section-card">
+  <span class="kicker">Devices</span>
+  <h2 style="margin-top: 6px;">Recently seen app installations</h2>
+
+  <% if @devices.any? %>
+    <div class="meta-grid" style="margin-top: 16px;">
+      <% @devices.each do |device| %>
+        <div class="meta-card">
+          <span class="meta-card__label"><%= device.platform.presence || "Unknown platform" %></span>
+          <span class="meta-card__value"><%= device.app_version.presence || "Unknown version" %></span>
+          <p class="meta" style="margin-top: 8px;">ID: <%= device.device_identifier %></p>
+          <p class="meta">Last seen: <%= device.last_seen_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %></p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="meta" style="margin-top: 12px;">
+      No devices have checked in yet. Sign in from the macOS app and the current build will appear here automatically.
+    </p>
+  <% end %>
+</section>
+
+<section class="section-card">
+  <span class="kicker">Support & Legal</span>
+  <h2 style="margin-top: 6px;">Help, policies, and release details</h2>
+
+  <div class="grid" style="margin-top: 16px;">
+    <div class="grid-card">
+      <h3>Support</h3>
+      <p class="lede">Need help with login, billing, or access? Reach out and include the email tied to your Voxlane account.</p>
+      <div class="button-row" style="margin-top: 14px;">
+        <a class="button button--secondary" href="<%= support_path %>">Open support</a>
+        <a class="button button--ghost" href="mailto:<%= AppConfig.support_email %>"><%= AppConfig.support_email %></a>
+      </div>
+    </div>
+    <div class="grid-card">
+      <h3>Legal</h3>
+      <p class="lede">Review how Voxlane handles billing, direct downloads, and account-based access.</p>
+      <div class="button-row" style="margin-top: 14px;">
+        <a class="button button--secondary" href="<%= privacy_path %>">Privacy</a>
+        <a class="button button--secondary" href="<%= terms_path %>">Terms</a>
+        <a class="button button--secondary" href="<%= release_notes_path %>">Release notes</a>
+      </div>
     </div>
   </div>
 </section>

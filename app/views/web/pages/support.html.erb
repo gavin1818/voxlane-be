@@ -1,0 +1,28 @@
+<section class="hero">
+  <span class="hero__eyebrow">Support</span>
+  <h1 class="hero__title">Get help with login, billing, or your macOS setup.</h1>
+  <p class="hero__copy">
+    Contact Voxlane support for account access issues, Stripe billing questions, or direct-download problems.
+  </p>
+</section>
+
+<section class="section-card">
+  <div class="meta-grid">
+    <div class="meta-card">
+      <span class="meta-card__label">Email support</span>
+      <span class="meta-card__value"><a href="mailto:<%= AppConfig.support_email %>"><%= AppConfig.support_email %></a></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Release notes</span>
+      <span class="meta-card__value"><a href="<%= release_notes_path %>">Latest changelog</a></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Account page</span>
+      <span class="meta-card__value"><a href="<%= account_path %>">Open account center</a></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Download</span>
+      <span class="meta-card__value"><a href="<%= download_path %>">Latest macOS build</a></span>
+    </div>
+  </div>
+</section>

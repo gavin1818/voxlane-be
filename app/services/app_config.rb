@@ -43,6 +43,10 @@ class AppConfig
       ENV.fetch("APP_NAME", "Voxlane")
     end
 
+    def support_email
+      ENV.fetch("SUPPORT_EMAIL", "support@voxlane.io")
+    end
+
     def app_download_url
       ENV.fetch("APP_DOWNLOAD_URL", frontend_url)
     end

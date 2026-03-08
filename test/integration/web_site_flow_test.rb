@@ -40,6 +40,20 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, AppConfig.sparkle_latest_version
   end
 
+  test "support, privacy, and terms pages render" do
+    get support_path
+    assert_response :success
+    assert_includes response.body, "Get help with login, billing, or your macOS setup."
+
+    get privacy_path
+    assert_response :success
+    assert_includes response.body, "Supabase passwordless email authentication"
+
+    get terms_path
+    assert_response :success
+    assert_includes response.body, "account-based subscription"
+  end
+
   test "verify code signs user in and redirects to account" do
     with_stubbed_singleton_method(
       Auth::SupabaseOtpClient,
@@ -75,7 +89,52 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
 
         assert_response :success
         assert_includes response.body, "alex@example.com"
-        assert_includes response.body, "Current access state"
+        assert_includes response.body, "Manage your profile, billing, devices, and support in one place."
+      end
+    end
+  end
+
+  test "profile update persists the display name on the account page" do
+    with_stubbed_singleton_method(
+      Auth::SupabaseOtpClient,
+      :verify_code!,
+      ->(email:, token:) {
+        {
+          "access_token" => "valid-access-token",
+          "refresh_token" => "valid-refresh-token",
+          "user" => { "email" => "alex@example.com" }
+        }
+      }
+    ) do
+      with_stubbed_singleton_method(
+        Auth::SupabaseTokenVerifier,
+        :call,
+        ->(_token) {
+          {
+            sub: "supabase-user-3",
+            email: "alex@example.com"
+          }
+        }
+      ) do
+        post login_verify_path, params: {
+          auth: {
+            email: "alex@example.com",
+            token: "123456"
+          }
+        }
+
+        patch account_profile_path, params: {
+          profile: {
+            display_name: "Alex Founder"
+          }
+        }
+
+        assert_redirected_to account_path
+        follow_redirect!
+
+        assert_response :success
+        assert_includes response.body, "Alex Founder"
+        assert_includes response.body, "Profile updated."
       end
     end
   end

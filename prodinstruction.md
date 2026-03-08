@@ -24,11 +24,13 @@
      STRIPE_PRO_PRICE_ID='price_...' \
      FRONTEND_URL='https://voxlane.io' \
      CORS_ALLOWED_ORIGINS='https://voxlane.io' \
+     AUTH_EMAIL_REDIRECT_URL='https://voxlane.io/login' \
      STRIPE_CHECKOUT_SUCCESS_URL='https://voxlane.io/account?checkout=success' \
      STRIPE_CHECKOUT_CANCEL_URL='https://voxlane.io/pricing?checkout=cancelled' \
      STRIPE_PORTAL_RETURN_URL='https://voxlane.io/account' \
      STRIPE_PRICE_LABEL='Voxlane Pro' \
      APP_NAME='Voxlane' \
+     SUPPORT_EMAIL='support@voxlane.io' \
      APP_DOWNLOAD_URL='https://voxlane.io/download' \
      SPARKLE_APPCAST_URL='https://voxlane.io/appcast.xml' \
      TRIAL_DAYS='7' \
@@ -36,6 +38,15 @@
 
    dokku ps:restart voxlane-be
    ```
+
+   Supabase Dashboard 里还要同步改这几项，不然邮件和跳转还是会错：
+
+   - `Authentication -> URL Configuration -> Site URL` 设成 `https://voxlane.io`
+   - `Authentication -> URL Configuration -> Redirect URLs` 至少加：
+     - `https://voxlane.io/login`
+     - `https://voxlane.io/account`
+   - `Authentication -> Email Templates` 把 passwordless/OTP 邮件正文改成使用 6 位 `Token`，不要只放 `ConfirmationURL`
+   - 如果你要保持现在 app 里的“发 6 位码 -> 手动输入”流程，建议关闭 `Confirm email`
 
 2. 在 Stripe live mode 建生产 webhook，然后把 `STRIPE_WEBHOOK_SECRET` 填进去。  
    endpoint 用 `https://voxlane.io/api/v1/webhooks/stripe`，事件按 [README.md:110](/Users/gavinm1/workspace/voxlane/README.md#L110) 到 [README.md:114](/Users/gavinm1/workspace/voxlane/README.md#L114) 这 5 个开。
