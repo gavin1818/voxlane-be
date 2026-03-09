@@ -1,5 +1,7 @@
 class Web::GoogleOauthController < Web::BaseController
   def start
+    return if redirect_authenticated_user_with_pending_desktop_login!
+
     session[:google_oauth_state] = Auth::TokenGenerator.call
     redirect_to Auth::GoogleOauthClient.authorization_url(state: session[:google_oauth_state]), allow_other_host: true
   end

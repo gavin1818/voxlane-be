@@ -223,6 +223,13 @@ strong {
   color: var(--text);
 }
 
+.button--danger,
+.button_to .button--danger {
+  background: rgba(158, 99, 41, 0.1);
+  border-color: rgba(158, 99, 41, 0.2);
+  color: var(--warning);
+}
+
 .button_to {
   display: inline-flex;
   margin: 0;
@@ -597,6 +604,12 @@ main {
   box-shadow: none;
 }
 
+.hero--account {
+  background:
+    radial-gradient(circle at top right, rgba(185, 173, 160, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(244, 239, 233, 0.84));
+}
+
 .section {
   position: relative;
   overflow: hidden;
@@ -686,6 +699,18 @@ main {
   display: block;
 }
 
+.hero__layout--account {
+  grid-template-columns: minmax(0, 1.16fr) minmax(300px, 0.84fr);
+  align-items: stretch;
+}
+
+.hero__title--account {
+  max-width: 7ch;
+  font-size: clamp(2.25rem, 4.6vw, 3.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
 .hero__center {
   display: grid;
   gap: 18px;
@@ -767,6 +792,20 @@ main {
   max-width: 760px;
 }
 
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.section-heading-copy {
+  display: grid;
+  gap: 10px;
+  max-width: 720px;
+}
+
 .section-head--center {
   justify-items: center;
   margin-inline: auto;
@@ -822,6 +861,11 @@ main {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-strong);
+}
+
+.section-card--subtle {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: none;
 }
 
 .card--accent {
@@ -1295,6 +1339,74 @@ main {
   font-size: 1.05rem;
 }
 
+.account-summary {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.account-summary__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.account-summary__copy {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.account-summary__stats {
+  display: grid;
+  gap: 12px;
+}
+
+.account-summary__stat {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.account-summary__label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.account-summary__value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  letter-spacing: -0.03em;
+}
+
+.account-meta-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.section-actions {
+  margin-top: 18px;
+}
+
+.account-note {
+  margin-top: 12px;
+}
+
 .field {
   display: grid;
   gap: 8px;
@@ -1315,6 +1427,11 @@ main {
   font: inherit;
 }
 
+.stack-form {
+  display: grid;
+  gap: 14px;
+}
+
 .status {
   display: inline-flex;
   align-items: center;
@@ -1332,6 +1449,11 @@ main {
 .status--trialing {
   background: rgba(139, 127, 114, 0.12);
   color: var(--accent-deep);
+}
+
+.status--ending {
+  background: rgba(158, 99, 41, 0.12);
+  color: var(--warning);
 }
 
 .status--inactive {
@@ -1467,6 +1589,10 @@ main > *:nth-child(5) {
   .topbar--auth .topbar__actions {
     justify-content: flex-end;
   }
+
+  .section-heading-row {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1477,6 +1603,10 @@ main > *:nth-child(5) {
 
   .hero__title {
     font-size: clamp(2.9rem, 16vw, 4.8rem);
+  }
+
+  .hero__title--account {
+    font-size: clamp(2.05rem, 10vw, 2.8rem);
   }
 
   .hero__reference-title {

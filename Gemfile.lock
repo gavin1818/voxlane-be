@@ -310,5 +310,8 @@ DEPENDENCIES
   stripe (~> 16.0)
   tzinfo-data
 
+RUBY VERSION
+   ruby 3.3.10p183
+
 BUNDLED WITH
    2.7.1

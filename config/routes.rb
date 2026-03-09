@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   delete "logout", to: "web/sessions#destroy", as: :logout
   post "checkout", to: "web/billing#checkout", as: :checkout
   post "billing/portal", to: "web/billing#portal", as: :billing_portal
+  patch "billing/subscription/cancel", to: "web/billing#cancel_subscription", as: :billing_subscription_cancel
+  patch "billing/subscription/resume", to: "web/billing#resume_subscription", as: :billing_subscription_resume
   get "appcast.xml", to: "web/appcasts#show", defaults: { format: :xml }, as: :appcast
   get "releases/latest", to: "web/pages#release_notes", as: :release_notes
 

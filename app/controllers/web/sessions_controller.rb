@@ -67,7 +67,7 @@ class Web::SessionsController < Web::BaseController
   private
 
   def redirect_authenticated_user!
-    redirect_to account_path if authenticated?
+    redirect_authenticated_user_with_pending_desktop_login!
   end
 
   def session_params

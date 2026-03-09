@@ -101,12 +101,23 @@ class Web::BaseController < ActionController::Base
     session.delete(:pending_desktop_login_request_id)
   end
 
-  def approve_pending_desktop_login_request(user)
-    public_id = session.delete(:pending_desktop_login_request_id)
-    return if public_id.blank?
+  def redirect_authenticated_user_with_pending_desktop_login!(fallback: account_path)
+    return false unless authenticated?
 
-    desktop_login_request = DesktopLoginRequest.find_by(public_id: public_id)
-    return if desktop_login_request.blank? || desktop_login_request.expired?
+    if (desktop_login_request = pending_desktop_login_request)
+      redirect_to desktop_login_path(desktop_login_request.public_id)
+    else
+      redirect_to fallback
+    end
+
+    true
+  end
+
+  def approve_pending_desktop_login_request(user)
+    desktop_login_request = pending_desktop_login_request
+    return if desktop_login_request.blank?
+
+    clear_pending_desktop_login_request!
     return if desktop_login_request.user.present? && desktop_login_request.user != user
 
     desktop_login_request.approve!(user)
@@ -120,6 +131,19 @@ class Web::BaseController < ActionController::Base
     return if desktop_login_request.blank? || desktop_login_request.expired?
 
     remember_desktop_login_request!(public_id)
+  end
+
+  def pending_desktop_login_request
+    public_id = session[:pending_desktop_login_request_id].to_s
+    return if public_id.blank?
+
+    desktop_login_request = DesktopLoginRequest.find_by(public_id: public_id)
+    if desktop_login_request.blank? || desktop_login_request.expired?
+      clear_pending_desktop_login_request!
+      return
+    end
+
+    desktop_login_request
   end
 
   def redirect_with_service_error(error)

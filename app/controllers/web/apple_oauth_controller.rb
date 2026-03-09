@@ -2,6 +2,8 @@ class Web::AppleOauthController < Web::BaseController
   skip_forgery_protection only: :callback
 
   def start
+    return if redirect_authenticated_user_with_pending_desktop_login!
+
     session[:apple_oauth_state] = Auth::TokenGenerator.call
     session[:apple_oauth_nonce] = Auth::TokenGenerator.call
 

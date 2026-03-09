@@ -1,17 +1,174 @@
+<% content_for :title, "Application Terms of Service" %>
+
 <section class="hero">
-  <span class="hero__eyebrow">Terms</span>
-  <h1 class="hero__title">Terms for direct-download access and account billing.</h1>
+  <span class="hero__eyebrow">Terms of Service</span>
+  <h1 class="hero__title">Application Terms of Service</h1>
   <p class="hero__copy">
-    Voxlane is sold as an account-based subscription with access managed by the website and reflected in the macOS app.
+    Last updated: March 9, 2026. These Terms of Service govern your access to and use of the
+    <%= AppConfig.app_name %> website, apps, downloads, updates, APIs, accounts, subscriptions,
+    and related services.
   </p>
 </section>
 
-<section class="section-card">
-  <ul style="margin-top: 12px;">
-    <li>Access to Pro features depends on the current account entitlement state.</li>
-    <li>Trials and paid status are tied to the account email you use to sign in.</li>
-    <li>Billing changes, cancellations, and payment methods are managed through Stripe-hosted pages.</li>
-    <li>Direct downloads and updates are delivered from Voxlane infrastructure outside the Mac App Store.</li>
-    <li>Support requests can be sent to <a href="mailto:<%= AppConfig.support_email %>"><%= AppConfig.support_email %></a>.</li>
+<section class="section-card stack">
+  <h2>Acceptance of Terms</h2>
+  <p class="meta">
+    By accessing or using <%= AppConfig.app_name %>, you agree to these Terms. If you are using the service on
+    behalf of a company, team, or other organization, you represent that you have authority to bind that organization
+    to these Terms.
+  </p>
+
+  <div>
+    <h3>Eligibility</h3>
+    <p class="meta">
+      You must be legally capable of entering into a binding contract and must comply with all laws that apply to your
+      use of the service. If you are under the age of majority where you live, you may use the service only with the
+      involvement of a parent or legal guardian.
+    </p>
+  </div>
+</section>
+
+<section class="section-card stack">
+  <h2>Accounts and access</h2>
+
+  <ul>
+    <li>You may create an account using email and password, Google sign-in, Apple sign-in, or other methods we make available.</li>
+    <li>You must provide accurate account information and keep it current.</li>
+    <li>You are responsible for maintaining the confidentiality of your credentials and for all activity that occurs under your account.</li>
+    <li>You must promptly notify us if you believe your account has been accessed without authorization.</li>
+    <li>We may suspend or restrict access if we believe your account is compromised, used fraudulently, or used in violation of these Terms.</li>
   </ul>
+
+  <div>
+    <h3>Desktop and device access</h3>
+    <p class="meta">
+      <%= AppConfig.app_name %> may link your account to supported apps and devices so your entitlements, sessions,
+      and updates work correctly. You are responsible for the devices you register and for anyone who uses them through
+      your account.
+    </p>
+  </div>
+</section>
+
+<section class="section-card stack">
+  <h2>Subscriptions, trials, and billing</h2>
+
+  <ul>
+    <li>Paid features may require a subscription or other fee-based plan. Prices, billing intervals, and included features are shown at checkout or on the pricing page.</li>
+    <li>If we offer a trial, promotional pricing, or credits, those offers may be subject to separate terms and may be modified or withdrawn as permitted by law.</li>
+    <li>Billing is processed through Stripe or another third-party payment processor we designate.</li>
+    <li>If your plan renews automatically, you authorize recurring charges until you cancel.</li>
+    <li>You can manage payment methods, cancellations, and billing details through the hosted billing portal we provide.</li>
+    <li>Except as required by law or expressly stated otherwise, fees are non-refundable and taxes are your responsibility.</li>
+  </ul>
+
+  <div>
+    <h3>Entitlements</h3>
+    <p class="meta">
+      Access to paid or trial functionality depends on the current entitlement status associated with your account.
+      If a payment is late, reversed, refunded, disputed, or cancelled, we may downgrade or suspend access to affected
+      features.
+    </p>
+  </div>
+</section>
+
+<section class="section-card stack">
+  <h2>License and acceptable use</h2>
+
+  <p class="meta">
+    Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use
+    <%= AppConfig.app_name %> for your internal personal or business purposes.
+  </p>
+
+  <ul>
+    <li>You may not copy, sell, resell, sublicense, lease, or commercially exploit the service except as expressly permitted by us.</li>
+    <li>You may not reverse engineer, decompile, disassemble, attempt to extract source code, or bypass technical limitations, access controls, rate limits, or security protections.</li>
+    <li>You may not use the service to break the law, infringe intellectual property or privacy rights, distribute malware, spam others, harass others, or interfere with the normal operation of the service.</li>
+    <li>You may not use bots, scraping tools, or automated methods to access the service in a way that burdens or disrupts the platform, except through interfaces we intentionally provide.</li>
+    <li>You may not use the service or its outputs to build, benchmark, or train a competing product or model in violation of applicable law or our rights.</li>
+  </ul>
+</section>
+
+<section class="section-card stack">
+  <h2>Your content and AI-generated output</h2>
+
+  <div>
+    <h3>Your input</h3>
+    <p class="meta">
+      You retain ownership of the voice recordings, text, prompts, selected content, instructions, files, and other
+      material you submit to the service ("Input"). You grant us a limited license to host, reproduce, transmit,
+      transform, and otherwise process your Input only as needed to operate, secure, support, and improve the service
+      for you in accordance with our Privacy Policy.
+    </p>
+  </div>
+
+  <div>
+    <h3>Your responsibility</h3>
+    <p class="meta">
+      You are responsible for ensuring that you have all rights, consents, and permissions needed to submit Input and
+      use it with <%= AppConfig.app_name %>, including any permissions required for recordings, dictated content,
+      workplace materials, or third-party text you ask the service to process.
+    </p>
+  </div>
+
+  <div>
+    <h3>Output quality</h3>
+    <p class="meta">
+      The service may generate summaries, rewrites, translations, answers, or other output using automated systems.
+      Output may be incomplete, inaccurate, offensive, or unsuitable for your intended use. You are responsible for
+      reviewing output before relying on it or sharing it with others. Do not rely on the service for legal, medical,
+      financial, employment, safety-critical, or other high-risk decisions without independent review.
+    </p>
+  </div>
+</section>
+
+<section class="section-card stack">
+  <h2>Third-party services, updates, and availability</h2>
+
+  <ul>
+    <li>The service may integrate with third-party providers such as Google, Apple, Stripe, hosting vendors, and speech or AI providers. Their services are governed by their own terms and privacy policies.</li>
+    <li>Direct app downloads, patches, and signed updates may be delivered outside the Mac App Store or other marketplaces.</li>
+    <li>We may add, remove, or change features at any time, including beta, preview, or experimental features.</li>
+    <li>We do not guarantee that the service will be uninterrupted, error-free, or available on every device, platform, language, or region at all times.</li>
+  </ul>
+</section>
+
+<section class="section-card stack">
+  <h2>Termination</h2>
+
+  <ul>
+    <li>You may stop using the service at any time and may cancel recurring paid plans through the billing portal.</li>
+    <li>We may suspend or terminate your access immediately if you violate these Terms, fail to pay applicable fees, create security risk, or use the service in a way that may harm us, our users, or third parties.</li>
+    <li>On termination, your right to use the service ends immediately, but provisions that by their nature should survive termination will continue to apply.</li>
+  </ul>
+</section>
+
+<section class="section-card stack">
+  <h2>Disclaimers and limitation of liability</h2>
+
+  <p class="meta">
+    To the maximum extent permitted by law, <%= AppConfig.app_name %> is provided "as is" and "as available" without
+    warranties of any kind, whether express, implied, or statutory, including implied warranties of merchantability,
+    fitness for a particular purpose, title, and non-infringement.
+  </p>
+
+  <ul>
+    <li>To the maximum extent permitted by law, we are not liable for any indirect, incidental, special, consequential, exemplary, or punitive damages, or for any loss of profits, revenues, goodwill, data, or business opportunities.</li>
+    <li>To the maximum extent permitted by law, our total liability for all claims arising out of or related to the service will not exceed the greater of the amount you paid us for the service in the 12 months before the claim arose or USD $100.</li>
+    <li>Some jurisdictions do not allow certain disclaimers or limitations, so some of the terms in this section may not apply to you.</li>
+  </ul>
+</section>
+
+<section class="section-card stack">
+  <h2>Changes to these Terms and contact</h2>
+
+  <p class="meta">
+    We may update these Terms from time to time. If we make material changes, we will post the updated Terms on this
+    page, update the date above, and may provide additional notice where appropriate. By continuing to use the service
+    after updated Terms take effect, you agree to the revised Terms.
+  </p>
+
+  <p class="meta">
+    Questions about these Terms may be sent to
+    <a href="mailto:<%= AppConfig.support_email %>"><%= AppConfig.support_email %></a>.
+  </p>
 </section>

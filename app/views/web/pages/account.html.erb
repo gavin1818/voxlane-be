@@ -1,87 +1,278 @@
+<% format_date = ->(value) { value&.strftime("%b %-d, %Y") || "n/a" } %>
+<% format_timestamp = ->(value) { value&.strftime("%b %-d, %Y %H:%M") || "n/a" } %>
 <% entitlement = current_entitlement %>
-<% status_class = if entitlement&.access_granted?
-  entitlement.status == "trialing" ? "status status--trialing" : "status status--active"
-else
-  "status status--inactive"
-end %>
-<% status_label = if entitlement&.access_granted?
-  entitlement.status == "trialing" ? "Trial active" : "Pro active"
+<% subscription = @latest_subscription %>
+<% billing_customer = current_user.billing_customer %>
+<% subscribed = subscription.present? %>
+<% subscription_trial = subscribed && subscription.status == "trialing" %>
+<% subscription_cancel_scheduled = subscribed && subscription.cancel_at_period_end? %>
+<% account_trial = entitlement&.access_granted? && entitlement.source == "account_trial" %>
+<% access_active = entitlement&.access_granted? %>
+<% access_end_at = subscription&.current_period_end_at || entitlement&.active_until %>
+<% access_status_label = if subscribed
+  if subscription_cancel_scheduled
+    "Cancellation scheduled"
+  elsif subscription_trial
+    "Pro subscribed"
+  elsif subscription.grants_access?
+    "Pro active"
+  else
+    "Subscription inactive"
+  end
+elsif account_trial
+  "Trial active"
+elsif access_active
+  "Access active"
 else
   "Access inactive"
 end %>
-<% subscription = @latest_subscription %>
+<% access_status_class = if subscribed && subscription.grants_access?
+  subscription_cancel_scheduled ? "status status--ending" : "status status--active"
+elsif account_trial
+  "status status--trialing"
+elsif access_active
+  "status status--active"
+else
+  "status status--inactive"
+end %>
+<% summary_title = if subscription_cancel_scheduled
+  "Your Pro plan stays active until #{format_date.call(subscription.current_period_end_at)}."
+elsif subscription_trial
+  "You're subscribed to Pro."
+elsif subscribed && subscription.grants_access?
+  "Your Pro access is active."
+elsif account_trial
+  "You're on the included 7-day trial."
+else
+  "Your account is ready for Pro."
+end %>
+<% summary_copy = if subscription_cancel_scheduled
+  "Auto-renew is off, but billing access remains on until the current period ends. You can still resume before that date."
+elsif subscription_trial
+  "Stripe already has a subscription for this account. The trial end date is the first billing date, not a missing purchase."
+elsif subscribed && subscription.grants_access?
+  "Billing, desktop access, and account identity are already linked. Manage payment details or cancellation from this page."
+elsif account_trial
+  "You have website and desktop access right now, but there is no paid subscription attached yet."
+else
+  "Start a subscription to unlock billing management, self-serve cancellation, and continuous Pro access."
+end %>
+<% renewal_label = if subscription_trial || account_trial
+  "Trial ends"
+elsif subscription_cancel_scheduled
+  "Access ends"
+elsif subscribed
+  "Renews"
+else
+  "Access until"
+end %>
+<% renewal_value = if subscription_trial
+  format_date.call(subscription.current_period_end_at)
+elsif account_trial
+  format_date.call(entitlement&.trial_ends_at)
+elsif subscribed
+  format_date.call(subscription.current_period_end_at)
+else
+  format_date.call(access_end_at)
+end %>
+<% purchase_state_value = if subscribed
+  subscription_cancel_scheduled ? "Subscribed, ends #{format_date.call(subscription.current_period_end_at)}" : "Subscribed (#{subscription.status.humanize})"
+elsif account_trial
+  "Not subscribed yet"
+else
+  "No subscription"
+end %>
+<% billing_note = if subscription_cancel_scheduled
+  "Auto-renew is off. You keep Pro access until #{format_date.call(subscription.current_period_end_at)}."
+elsif subscription_trial
+  "Your payment method and subscription are already attached to this account. Manage billing or cancel auto-renew at any time."
+elsif subscription&.cancellable?
+  "Cancel auto-renew to stop future billing while keeping access through the current period."
+elsif account_trial
+  "This is the built-in account trial. Starting a subscription replaces trial-only access with a managed Stripe plan."
+else
+  "No active Stripe subscription is attached yet."
+end %>
 
-<section class="hero">
-  <span class="hero__eyebrow">Account Center</span>
-  <h1 class="hero__title">Manage your profile, billing, devices, and support in one place.</h1>
-  <p class="hero__copy">
-    Your website account, Google or email sign-in, Stripe subscription, and macOS entitlement all stay tied to the same Voxlane identity.
-  </p>
+<section class="hero hero--account">
+  <div class="hero__layout hero__layout--account">
+    <div class="hero__content">
+      <span class="hero__eyebrow">Account Center</span>
+      <h1 class="hero__title hero__title--account">Your Voxlane account.</h1>
+      <p class="hero__copy">
+        Keep your login methods, subscription, desktop installs, and support details tied to one Voxlane identity.
+      </p>
 
-  <div class="button-row">
-    <% if entitlement&.status == "active" %>
-      <%= button_to "Manage billing",
+      <div class="button-row">
+        <% if billing_customer.present? %>
+          <%= button_to "Manage subscription",
+            billing_portal_path(return_url: account_url),
+            method: :post,
+            class: "button button--primary" %>
+        <% else %>
+          <%= button_to "Start Pro subscription",
+            checkout_path(
+              success_url: account_url(checkout: "success"),
+              cancel_url: pricing_url(checkout: "cancelled")
+            ),
+            method: :post,
+            class: "button button--primary" %>
+        <% end %>
+        <a class="button button--secondary" href="<%= download_path %>">Download macOS app</a>
+        <a class="button button--secondary" href="<%= support_path %>">Get support</a>
+      </div>
+    </div>
+
+    <aside class="account-summary">
+      <span class="<%= access_status_class %>"><%= access_status_label %></span>
+      <h2 class="account-summary__title"><%= summary_title %></h2>
+      <p class="account-summary__copy"><%= summary_copy %></p>
+
+      <div class="account-summary__stats">
+        <div class="account-summary__stat">
+          <span class="account-summary__label">Plan</span>
+          <span class="account-summary__value"><%= subscribed ? "Voxlane Pro" : (access_active ? "7-day trial" : "No active plan") %></span>
+        </div>
+        <div class="account-summary__stat">
+          <span class="account-summary__label">Purchase state</span>
+          <span class="account-summary__value"><%= purchase_state_value %></span>
+        </div>
+        <div class="account-summary__stat">
+          <span class="account-summary__label"><%= renewal_label %></span>
+          <span class="account-summary__value"><%= renewal_value %></span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section-card">
+  <div class="section-heading-row">
+    <div class="section-heading-copy">
+      <span class="kicker">Billing & Access</span>
+      <h2>Subscription, renewal, and cancellation</h2>
+      <p class="meta">Show paid status clearly, manage Stripe billing, and keep app access in sync.</p>
+    </div>
+    <span class="<%= access_status_class %>"><%= access_status_label %></span>
+  </div>
+
+  <div class="meta-grid account-meta-grid">
+    <div class="meta-card">
+      <span class="meta-card__label">Plan</span>
+      <span class="meta-card__value"><%= subscribed ? "Voxlane Pro" : (access_active ? "7-day trial" : "No active plan") %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Purchase state</span>
+      <span class="meta-card__value"><%= purchase_state_value %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Billing state</span>
+      <span class="meta-card__value"><%= subscribed ? subscription.status.humanize : "None" %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label"><%= renewal_label %></span>
+      <span class="meta-card__value"><%= renewal_value %></span>
+    </div>
+  </div>
+
+  <div class="button-row section-actions">
+    <% if billing_customer.present? %>
+      <%= button_to "Manage subscription",
         billing_portal_path(return_url: account_url),
         method: :post,
         class: "button button--primary" %>
-    <% else %>
-      <%= button_to "Open checkout",
+    <% end %>
+
+    <% if subscription&.cancellable? %>
+      <%= button_to "Cancel auto-renew",
+        billing_subscription_cancel_path,
+        method: :patch,
+        class: "button button--danger",
+        form: {
+          data: {
+            turbo_confirm: "Cancel automatic renewal at the end of the current period?"
+          }
+        } %>
+    <% elsif subscription&.resumable? %>
+      <%= button_to "Resume renewal",
+        billing_subscription_resume_path,
+        method: :patch,
+        class: "button button--secondary" %>
+    <% end %>
+
+    <% unless subscribed %>
+      <%= button_to "Start Pro subscription",
         checkout_path(
           success_url: account_url(checkout: "success"),
           cancel_url: pricing_url(checkout: "cancelled")
         ),
         method: :post,
-        class: "button button--primary" %>
+        class: "button button--secondary" %>
     <% end %>
-    <a class="button button--secondary" href="<%= download_path %>">Download macOS app</a>
-    <a class="button button--secondary" href="<%= support_path %>">Get support</a>
+  </div>
+
+  <p class="meta account-note"><%= billing_note %></p>
+
+  <div class="grid grid--2">
+    <div class="grid-card">
+      <h3>Website billing</h3>
+      <p class="lede">
+        Checkout, payment method updates, and invoice history stay on the web through Stripe-hosted pages.
+      </p>
+    </div>
+    <div class="grid-card">
+      <h3>Desktop access</h3>
+      <p class="lede">
+        The macOS app reads the same server-side entitlement. If access looks stale, reopen Voxlane or refresh access in the app.
+      </p>
+    </div>
   </div>
 </section>
 
 <section class="section-card">
-  <div class="button-row" style="justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <div>
+  <div class="section-heading-row">
+    <div class="section-heading-copy">
       <span class="kicker">Profile</span>
-      <h2 style="margin-top: 6px;">Identity and account details</h2>
+      <h2>Identity and account details</h2>
+      <p class="meta">Your website account, billing identity, and desktop login all stay tied to the same profile.</p>
     </div>
-    <span class="<%= status_class %>"><%= status_label %></span>
   </div>
 
   <div class="split">
-    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
-      <%= form_with url: account_profile_path, scope: :profile, method: :patch do |form| %>
+    <div class="section-card section-card--subtle stack">
+      <%= form_with url: account_profile_path, scope: :profile, method: :patch, html: { class: "stack-form" } do |form| %>
         <div class="field">
           <%= form.label :display_name, "Display name" %>
           <%= form.text_field :display_name, value: current_user.display_name, placeholder: "Your name" %>
         </div>
-        <div class="field" style="margin-top: 14px;">
+        <div class="field">
           <label>Email</label>
           <input type="email" value="<%= current_user.email %>" disabled>
         </div>
-        <p class="meta" style="margin-top: 12px;">Use this profile across the website, billing flows, and the Voxlane macOS app.</p>
-        <div class="button-row" style="margin-top: 16px;">
+        <p class="meta">Use this profile across the website, billing flows, and the Voxlane macOS app.</p>
+        <div class="button-row">
           <%= form.submit "Save profile", class: "button button--primary" %>
         </div>
       <% end %>
     </div>
 
-    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
-      <div class="meta-grid">
+    <div class="section-card section-card--subtle stack">
+      <div class="meta-grid account-meta-grid">
         <div class="meta-card">
           <span class="meta-card__label">Email</span>
           <span class="meta-card__value"><%= current_user.email %></span>
         </div>
         <div class="meta-card">
-          <span class="meta-card__label">Status</span>
-          <span class="meta-card__value"><%= entitlement&.status || "inactive" %></span>
+          <span class="meta-card__label">Access source</span>
+          <span class="meta-card__value"><%= subscribed ? "Stripe subscription" : (account_trial ? "Included trial" : "None") %></span>
         </div>
         <div class="meta-card">
           <span class="meta-card__label">Member since</span>
-          <span class="meta-card__value"><%= current_user.created_at.strftime("%b %-d, %Y") %></span>
+          <span class="meta-card__value"><%= format_date.call(current_user.created_at) %></span>
         </div>
         <div class="meta-card">
           <span class="meta-card__label">Last seen</span>
-          <span class="meta-card__value"><%= current_user.last_seen_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %></span>
+          <span class="meta-card__value"><%= format_timestamp.call(current_user.last_seen_at) %></span>
         </div>
       </div>
     </div>
@@ -89,11 +280,16 @@ end %>
 </section>
 
 <section class="section-card">
-  <span class="kicker">Security</span>
-  <h2 style="margin-top: 6px;">Sign-in methods and password</h2>
+  <div class="section-heading-row">
+    <div class="section-heading-copy">
+      <span class="kicker">Security</span>
+      <h2>Sign-in methods and password</h2>
+      <p class="meta">Add a password, keep email login current, and link social providers when available.</p>
+    </div>
+  </div>
 
-  <div class="split" style="margin-top: 18px;">
-    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+  <div class="split">
+    <div class="section-card section-card--subtle stack">
       <h3>Password</h3>
       <p class="lede">
         <% if current_user.password_login_enabled? %>
@@ -103,30 +299,30 @@ end %>
         <% end %>
       </p>
 
-      <%= form_with url: account_password_path, scope: :password, method: :patch do |form| %>
+      <%= form_with url: account_password_path, scope: :password, method: :patch, html: { class: "stack-form" } do |form| %>
         <% if current_user.password_login_enabled? %>
           <div class="field">
             <%= form.label :current_password, "Current password" %>
             <%= form.password_field :current_password, autocomplete: "current-password" %>
           </div>
         <% end %>
-        <div class="field" style="margin-top: 14px;">
+        <div class="field">
           <%= form.label :password, current_user.password_login_enabled? ? "New password" : "Set password" %>
           <%= form.password_field :password, autocomplete: "new-password" %>
         </div>
-        <div class="field" style="margin-top: 14px;">
+        <div class="field">
           <%= form.label :password_confirmation, "Confirm password" %>
           <%= form.password_field :password_confirmation, autocomplete: "new-password" %>
         </div>
-        <div class="button-row" style="margin-top: 16px;">
+        <div class="button-row">
           <%= form.submit current_user.password_login_enabled? ? "Update password" : "Enable email login", class: "button button--primary" %>
         </div>
       <% end %>
     </div>
 
-    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+    <div class="section-card section-card--subtle stack">
       <h3>Connected sign-in methods</h3>
-      <div class="meta-grid" style="margin-top: 12px;">
+      <div class="grid grid--3">
         <div class="meta-card">
           <span class="meta-card__label">Email login</span>
           <span class="meta-card__value"><%= current_user.password_login_enabled? ? "Enabled" : "Not configured" %></span>
@@ -142,7 +338,7 @@ end %>
       </div>
 
       <% if (google_oauth_enabled? && !current_user.google_connected?) || (apple_oauth_enabled? && !current_user.apple_connected?) %>
-        <div class="button-row" style="margin-top: 16px; flex-wrap: wrap;">
+        <div class="button-row section-actions">
           <% if google_oauth_enabled? && !current_user.google_connected? %>
             <a class="button button--secondary" href="<%= google_auth_path %>">Connect with Google</a>
           <% end %>
@@ -156,75 +352,44 @@ end %>
 </section>
 
 <section class="section-card">
-  <span class="kicker">Billing & Access</span>
-  <h2 style="margin-top: 6px;">Current entitlement and subscription state</h2>
-
-  <div class="meta-grid" style="margin-top: 16px;">
-    <div class="meta-card">
-      <span class="meta-card__label">Entitlement</span>
-      <span class="meta-card__value"><%= status_label %></span>
-    </div>
-    <div class="meta-card">
-      <span class="meta-card__label">Trial ends</span>
-      <span class="meta-card__value"><%= entitlement&.trial_ends_at&.strftime("%b %-d, %Y") || "n/a" %></span>
-    </div>
-    <div class="meta-card">
-      <span class="meta-card__label">Subscription status</span>
-      <span class="meta-card__value"><%= subscription&.status || "none" %></span>
-    </div>
-    <div class="meta-card">
-      <span class="meta-card__label">Period end</span>
-      <span class="meta-card__value"><%= subscription&.current_period_end_at&.strftime("%b %-d, %Y") || "n/a" %></span>
+  <div class="section-heading-row">
+    <div class="section-heading-copy">
+      <span class="kicker">Devices</span>
+      <h2>Recently seen app installations</h2>
+      <p class="meta">Desktop installs appear here automatically after sign-in from the macOS app.</p>
     </div>
   </div>
-
-  <div class="grid" style="margin-top: 18px;">
-    <div class="grid-card">
-      <h3>Website billing flow</h3>
-      <p class="lede">
-        Checkout and subscription management stay on the web through Stripe-hosted pages. The macOS app only opens those flows and refreshes access.
-      </p>
-    </div>
-    <div class="grid-card">
-      <h3>Desktop entitlement flow</h3>
-      <p class="lede">
-        After payment, the website and app both read the same server-side entitlement. If needed, reopen the app or click Refresh Access inside Voxlane.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="section-card">
-  <span class="kicker">Devices</span>
-  <h2 style="margin-top: 6px;">Recently seen app installations</h2>
 
   <% if @devices.any? %>
-    <div class="meta-grid" style="margin-top: 16px;">
+    <div class="meta-grid account-meta-grid">
       <% @devices.each do |device| %>
         <div class="meta-card">
           <span class="meta-card__label"><%= device.platform.presence || "Unknown platform" %></span>
           <span class="meta-card__value"><%= device.app_version.presence || "Unknown version" %></span>
-          <p class="meta" style="margin-top: 8px;">ID: <%= device.device_identifier %></p>
-          <p class="meta">Last seen: <%= device.last_seen_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %></p>
+          <p class="meta">ID: <%= device.device_identifier %></p>
+          <p class="meta">Last seen: <%= format_timestamp.call(device.last_seen_at) %></p>
         </div>
       <% end %>
     </div>
   <% else %>
-    <p class="meta" style="margin-top: 12px;">
-      No devices have checked in yet. Sign in from the macOS app and the current build will appear here automatically.
-    </p>
+    <p class="meta">No devices have checked in yet. Sign in from the macOS app and the current build will appear here automatically.</p>
   <% end %>
 </section>
 
 <section class="section-card">
-  <span class="kicker">Support & Legal</span>
-  <h2 style="margin-top: 6px;">Help, policies, and release details</h2>
+  <div class="section-heading-row">
+    <div class="section-heading-copy">
+      <span class="kicker">Support & Legal</span>
+      <h2>Help, policies, and release details</h2>
+      <p class="meta">Support, legal references, and release notes stay a click away from the account dashboard.</p>
+    </div>
+  </div>
 
-  <div class="grid" style="margin-top: 16px;">
+  <div class="grid grid--2">
     <div class="grid-card">
       <h3>Support</h3>
       <p class="lede">Need help with login, billing, or access? Reach out and include the email tied to your Voxlane account.</p>
-      <div class="button-row" style="margin-top: 14px;">
+      <div class="button-row section-actions">
         <a class="button button--secondary" href="<%= support_path %>">Open support</a>
         <a class="button button--ghost" href="mailto:<%= AppConfig.support_email %>"><%= AppConfig.support_email %></a>
       </div>
@@ -232,7 +397,7 @@ end %>
     <div class="grid-card">
       <h3>Legal</h3>
       <p class="lede">Review how Voxlane handles billing, direct downloads, and account-based access.</p>
-      <div class="button-row" style="margin-top: 14px;">
+      <div class="button-row section-actions">
         <a class="button button--secondary" href="<%= privacy_path %>">Privacy</a>
         <a class="button button--secondary" href="<%= terms_path %>">Terms</a>
         <a class="button button--secondary" href="<%= release_notes_path %>">Release notes</a>

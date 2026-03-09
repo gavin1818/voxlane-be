@@ -1,6 +1,7 @@
 class Web::RegistrationsController < Web::BaseController
   def new
-    redirect_to account_path if authenticated?
+    return if redirect_authenticated_user_with_pending_desktop_login!
+
     @user = User.new(email: params[:email].to_s.strip.downcase)
   end
 

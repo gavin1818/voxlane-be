@@ -33,7 +33,10 @@ class Web::PagesController < Web::BaseController
 
   def load_account_details
     @devices = current_user.devices.order(last_seen_at: :desc, created_at: :desc)
-    @latest_subscription = current_user.subscriptions.order(updated_at: :desc, created_at: :desc).first
+    @latest_subscription = current_user.subscriptions
+      .where(provider: BillingCustomer::PROVIDER_STRIPE)
+      .order(updated_at: :desc, created_at: :desc)
+      .first
   end
 
   def apply_checkout_flash
