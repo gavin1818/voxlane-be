@@ -99,7 +99,7 @@ end %>
         <% if current_user.password_login_enabled? %>
           Update your password for email sign-in.
         <% else %>
-          You currently use Google-only sign-in. Set a password here if you also want email login.
+          You do not have email login enabled yet. Set a password if you also want to sign in by email.
         <% end %>
       </p>
 
@@ -135,11 +135,20 @@ end %>
           <span class="meta-card__label">Google</span>
           <span class="meta-card__value"><%= current_user.google_connected? ? "Connected" : "Not connected" %></span>
         </div>
+        <div class="meta-card">
+          <span class="meta-card__label">Apple</span>
+          <span class="meta-card__value"><%= current_user.apple_connected? ? "Connected" : "Not connected" %></span>
+        </div>
       </div>
 
-      <% if google_oauth_enabled? && !current_user.google_connected? %>
-        <div class="button-row" style="margin-top: 16px;">
-          <a class="button button--secondary" href="<%= google_auth_path %>">Connect with Google</a>
+      <% if (google_oauth_enabled? && !current_user.google_connected?) || (apple_oauth_enabled? && !current_user.apple_connected?) %>
+        <div class="button-row" style="margin-top: 16px; flex-wrap: wrap;">
+          <% if google_oauth_enabled? && !current_user.google_connected? %>
+            <a class="button button--secondary" href="<%= google_auth_path %>">Connect with Google</a>
+          <% end %>
+          <% if apple_oauth_enabled? && !current_user.apple_connected? %>
+            <a class="button button--secondary" href="<%= apple_auth_path %>">Connect with Apple</a>
+          <% end %>
         </div>
       <% end %>
     </div>

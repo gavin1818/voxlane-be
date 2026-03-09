@@ -4,13 +4,19 @@ class Web::SessionsController < Web::BaseController
     @prefilled_email = params[:email].presence || current_user_email
   end
 
+  def email
+    redirect_to account_path if authenticated?
+    @prefilled_email = params[:email].presence || current_user_email
+  end
+
   def create
     email = normalized_email(session_params[:email])
     password = session_params[:password].to_s
 
     if email.blank? || password.blank?
       flash.now[:alert] = "Enter your email and password."
-      render :new, status: :unprocessable_entity
+      @prefilled_email = email
+      render :email, status: :unprocessable_entity
       return
     end
 
@@ -20,7 +26,7 @@ class Web::SessionsController < Web::BaseController
     unless authenticated_user
       flash.now[:alert] = "Invalid email or password."
       @prefilled_email = email
-      render :new, status: :unprocessable_entity
+      render :email, status: :unprocessable_entity
       return
     end
 

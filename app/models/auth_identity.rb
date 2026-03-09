@@ -1,5 +1,6 @@
 class AuthIdentity < ApplicationRecord
   PROVIDER_GOOGLE = "google".freeze
+  PROVIDER_APPLE = "apple".freeze
 
   belongs_to :user
 
@@ -9,6 +10,7 @@ class AuthIdentity < ApplicationRecord
   before_validation :normalize_email
 
   scope :google, -> { where(provider: PROVIDER_GOOGLE) }
+  scope :apple, -> { where(provider: PROVIDER_APPLE) }
 
   private
 

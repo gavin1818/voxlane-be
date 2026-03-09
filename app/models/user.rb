@@ -33,6 +33,10 @@ class User < ApplicationRecord
     auth_identities.any? { |identity| identity.provider == AuthIdentity::PROVIDER_GOOGLE }
   end
 
+  def apple_connected?
+    auth_identities.any? { |identity| identity.provider == AuthIdentity::PROVIDER_APPLE }
+  end
+
   def password_login_enabled?
     password_digest.present?
   end

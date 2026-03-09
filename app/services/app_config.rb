@@ -50,6 +50,33 @@ class AppConfig
       google_client_id.present? && google_client_secret.present?
     end
 
+    def apple_service_id
+      ENV["APPLE_SERVICE_ID"].to_s.strip
+    end
+
+    def apple_team_id
+      ENV["APPLE_TEAM_ID"].to_s.strip
+    end
+
+    def apple_key_id
+      ENV["APPLE_KEY_ID"].to_s.strip
+    end
+
+    def apple_private_key
+      ENV["APPLE_PRIVATE_KEY"].to_s.gsub("\\n", "\n").strip
+    end
+
+    def apple_redirect_uri
+      ENV["APPLE_REDIRECT_URI"].presence || "#{frontend_url.chomp("/")}/auth/apple/callback"
+    end
+
+    def apple_oauth_enabled?
+      apple_service_id.present? &&
+        apple_team_id.present? &&
+        apple_key_id.present? &&
+        apple_private_key.present?
+    end
+
     def entitlement_key
       ENV.fetch("ENTITLEMENT_KEY", "pro")
     end

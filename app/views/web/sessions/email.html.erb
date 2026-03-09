@@ -1,0 +1,59 @@
+<section class="hero hero--inner">
+  <div class="hero__content">
+    <span class="hero__eyebrow">Email Sign-In</span>
+    <h1 class="hero__title">Continue with your Voxlane email.</h1>
+    <p class="hero__copy">
+      Use your email and password to manage billing, unlock the Mac app, or start a new trial.
+    </p>
+    <div class="button-row" style="margin-top: 18px;">
+      <a class="button button--ghost" href="<%= login_path(desktop_login: params[:desktop_login]) %>">Back to login options</a>
+      <a class="button button--secondary" href="<%= signup_path(email: @prefilled_email, desktop_login: params[:desktop_login]) %>">Create account</a>
+    </div>
+  </div>
+</section>
+
+<section class="split">
+  <div class="section-card stack">
+    <span class="kicker">Welcome back</span>
+    <h2>Email login</h2>
+    <p>Sign in to manage your profile, billing, devices, and desktop access.</p>
+
+    <%= form_with url: login_path, scope: :auth, method: :post do |form| %>
+      <%= hidden_field_tag :desktop_login, params[:desktop_login] if params[:desktop_login].present? %>
+      <div class="field">
+        <%= form.label :email, "Email" %>
+        <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
+      </div>
+      <div class="field" style="margin-top: 14px;">
+        <%= form.label :password, "Password" %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password" %>
+      </div>
+      <div class="button-row" style="justify-content: space-between; margin-top: 16px; align-items: center;">
+        <%= form.submit "Sign in", class: "button button--primary" %>
+        <a class="nav-link" href="<%= forgot_password_path(desktop_login: params[:desktop_login]) %>">Forgot password?</a>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="section-card stack">
+    <span class="kicker">Need an account?</span>
+    <h2>Create one with email</h2>
+    <p>Start your trial, connect your Mac, and manage Stripe billing from the same account center.</p>
+
+    <div class="grid" style="margin-top: 10px;">
+      <div class="grid-card">
+        <h3>7-day trial</h3>
+        <p class="lede">Your account trial begins the first time you sign in and syncs to the desktop app.</p>
+      </div>
+      <div class="grid-card">
+        <h3>Desktop unlock</h3>
+        <p class="lede">If you arrived from the Mac app, signing in here approves that device automatically.</p>
+      </div>
+    </div>
+
+    <div class="button-row" style="margin-top: 18px;">
+      <a class="button button--primary" href="<%= signup_path(email: @prefilled_email, desktop_login: params[:desktop_login]) %>">Create account</a>
+      <a class="button button--secondary" href="<%= support_path %>">Need help?</a>
+    </div>
+  </div>
+</section>

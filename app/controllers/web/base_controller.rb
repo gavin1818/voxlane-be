@@ -5,9 +5,11 @@ class Web::BaseController < ActionController::Base
   layout "marketing"
   protect_from_forgery with: :exception
 
-  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email, :google_oauth_enabled?
+  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email, :google_oauth_enabled?, :apple_oauth_enabled?
 
   rescue_from Auth::GoogleOauthClient::RequestError, with: :redirect_with_service_error
+  rescue_from Auth::AppleOauthClient::RequestError, with: :redirect_with_service_error
+  rescue_from Auth::AppleIdentityTokenVerifier::RequestError, with: :redirect_with_service_error
   rescue_from Stripe::StripeError, with: :redirect_with_service_error
 
   private
@@ -20,6 +22,7 @@ class Web::BaseController < ActionController::Base
   end
 
   def load_web_session
+    remember_pending_desktop_login_from_params!
     @authenticated_session = session_authenticator.call
     return unless @authenticated_session
 
@@ -50,6 +53,10 @@ class Web::BaseController < ActionController::Base
 
   def google_oauth_enabled?
     AppConfig.google_oauth_enabled?
+  end
+
+  def apple_oauth_enabled?
+    AppConfig.apple_oauth_enabled?
   end
 
   def authenticate_web_user!
@@ -103,6 +110,16 @@ class Web::BaseController < ActionController::Base
     return if desktop_login_request.user.present? && desktop_login_request.user != user
 
     desktop_login_request.approve!(user)
+  end
+
+  def remember_pending_desktop_login_from_params!
+    public_id = params[:desktop_login].to_s.strip
+    return if public_id.blank?
+
+    desktop_login_request = DesktopLoginRequest.find_by(public_id: public_id)
+    return if desktop_login_request.blank? || desktop_login_request.expired?
+
+    remember_desktop_login_request!(public_id)
   end
 
   def redirect_with_service_error(error)

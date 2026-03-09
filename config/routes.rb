@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   patch "account/profile", to: "web/accounts#update_profile", as: :account_profile
   patch "account/password", to: "web/accounts#update_password", as: :account_password
   get "login", to: "web/sessions#new", as: :login
+  get "login/email", to: "web/sessions#email", as: :login_email
   post "login", to: "web/sessions#create"
   get "signup", to: "web/registrations#new", as: :signup
   post "signup", to: "web/registrations#create"
@@ -16,6 +17,8 @@ Rails.application.routes.draw do
   patch "reset-password/:token", to: "web/passwords#update"
   get "auth/google", to: "web/google_oauth#start", as: :google_auth
   get "auth/google/callback", to: "web/google_oauth#callback", as: :google_auth_callback
+  get "auth/apple", to: "web/apple_oauth#start", as: :apple_auth
+  match "auth/apple/callback", to: "web/apple_oauth#callback", via: %i[get post], as: :apple_auth_callback
   get "desktop-login/:public_id", to: "web/desktop_logins#show", as: :desktop_login
   get "support", to: "web/pages#support", as: :support
   get "privacy", to: "web/pages#privacy", as: :privacy

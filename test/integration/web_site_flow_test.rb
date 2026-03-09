@@ -30,6 +30,19 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Google OAuth or email and password"
   end
 
+  test "login pages render provider chooser and dedicated email flow" do
+    get login_path
+    assert_response :success
+    assert_includes response.body, "Continue with Google"
+    assert_includes response.body, "Continue with email"
+    assert_includes response.body, "Continue with Apple"
+
+    get login_email_path
+    assert_response :success
+    assert_includes response.body, "Email login"
+    assert_includes response.body, "Forgot password?"
+  end
+
   test "email registration signs the user in and shows the account center" do
     post signup_path, params: {
       user: {
