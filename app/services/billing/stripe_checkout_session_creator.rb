@@ -21,7 +21,7 @@ module Billing
       Stripe::Checkout::Session.create(
         mode: "subscription",
         customer: customer.external_customer_id,
-        client_reference_id: user.supabase_uid,
+        client_reference_id: user.public_id,
         success_url: success_url,
         cancel_url: cancel_url,
         allow_promotion_codes: true,
@@ -34,7 +34,7 @@ module Billing
         subscription_data: {
           metadata: {
             user_id: user.id,
-            supabase_uid: user.supabase_uid,
+            public_id: user.public_id,
             entitlement_key: AppConfig.entitlement_key
           }
         }

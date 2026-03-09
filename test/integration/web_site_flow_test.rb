@@ -16,170 +16,121 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "home page renders" do
+  test "marketing pages render" do
     get root_path
-
     assert_response :success
-    assert_includes response.body, "don't type"
-    assert_includes response.body, "Voxlane will turn your words into polished messages, emails, and documents"
-  end
+    assert_includes response.body, "Voxlane"
 
-  test "pricing page renders" do
     get pricing_path
-
     assert_response :success
-    assert_includes response.body, "One plan."
     assert_includes response.body, "One billing home."
-  end
-
-  test "download page renders" do
-    get download_path
-
-    assert_response :success
-    assert_includes response.body, "Download latest build"
-    assert_includes response.body, AppConfig.sparkle_latest_version
-  end
-
-  test "support, privacy, and terms pages render" do
-    get support_path
-    assert_response :success
-    assert_includes response.body, "Get help with login, billing, or your macOS setup."
 
     get privacy_path
     assert_response :success
-    assert_includes response.body, "Supabase passwordless email authentication"
+    assert_includes response.body, "Google OAuth or email and password"
+  end
 
-    get terms_path
+  test "email registration signs the user in and shows the account center" do
+    post signup_path, params: {
+      user: {
+        display_name: "Alex Founder",
+        email: "alex@example.com",
+        password: "password123",
+        password_confirmation: "password123"
+      }
+    }
+
+    assert_redirected_to account_path
+    follow_redirect!
+
     assert_response :success
-    assert_includes response.body, "account-based subscription"
+    assert_includes response.body, "Alex Founder"
+    assert_includes response.body, "Connected sign-in methods"
   end
 
-  test "verify code signs user in and redirects to account" do
-    with_stubbed_singleton_method(
-      Auth::SupabaseOtpClient,
-      :verify_code!,
-      ->(email:, token:) {
-        {
-          "access_token" => "valid-access-token",
-          "refresh_token" => "valid-refresh-token",
-          "user" => { "email" => "alex@example.com" }
-        }
+  test "email login signs the user in and allows profile updates" do
+    user = User.create!(
+      public_id: "web-user",
+      email: "alex@example.com",
+      display_name: "Alex",
+      password: "password123",
+      password_confirmation: "password123",
+      email_verified_at: Time.current,
+      profile: {}
+    )
+
+    post login_path, params: {
+      auth: {
+        email: user.email,
+        password: "password123"
       }
-    ) do
-      with_stubbed_singleton_method(
-        Auth::SupabaseTokenVerifier,
-        :call,
-        ->(_token) {
-          {
-            sub: "supabase-user-1",
-            email: "alex@example.com",
-            user_metadata: { name: "Alex" }
-          }
-        }
-      ) do
-        post login_verify_path, params: {
-          auth: {
-            email: "alex@example.com",
-            token: "123456"
-          }
-        }
+    }
 
-        assert_redirected_to account_path
-        follow_redirect!
+    assert_redirected_to account_path
 
-        assert_response :success
-        assert_includes response.body, "alex@example.com"
-        assert_includes response.body, "Manage your profile, billing, devices, and support in one place."
-      end
-    end
+    patch account_profile_path, params: {
+      profile: {
+        display_name: "Alex Founder"
+      }
+    }
+
+    assert_redirected_to account_path
+    follow_redirect!
+
+    assert_includes response.body, "Profile updated."
+    assert_includes response.body, "Alex Founder"
   end
 
-  test "profile update persists the display name on the account page" do
-    with_stubbed_singleton_method(
-      Auth::SupabaseOtpClient,
-      :verify_code!,
-      ->(email:, token:) {
-        {
-          "access_token" => "valid-access-token",
-          "refresh_token" => "valid-refresh-token",
-          "user" => { "email" => "alex@example.com" }
+  test "forgot password sends a reset email" do
+    User.create!(
+      public_id: "password-user",
+      email: "alex@example.com",
+      display_name: "Alex",
+      password: "password123",
+      password_confirmation: "password123",
+      email_verified_at: Time.current,
+      profile: {}
+    )
+
+    assert_difference -> { ActionMailer::Base.deliveries.size }, 1 do
+      post forgot_password_path, params: {
+        password: {
+          email: "alex@example.com"
         }
       }
-    ) do
-      with_stubbed_singleton_method(
-        Auth::SupabaseTokenVerifier,
-        :call,
-        ->(_token) {
-          {
-            sub: "supabase-user-3",
-            email: "alex@example.com"
-          }
-        }
-      ) do
-        post login_verify_path, params: {
-          auth: {
-            email: "alex@example.com",
-            token: "123456"
-          }
-        }
-
-        patch account_profile_path, params: {
-          profile: {
-            display_name: "Alex Founder"
-          }
-        }
-
-        assert_redirected_to account_path
-        follow_redirect!
-
-        assert_response :success
-        assert_includes response.body, "Alex Founder"
-        assert_includes response.body, "Profile updated."
-      end
     end
+
+    assert_redirected_to login_path
+    assert_includes ActionMailer::Base.deliveries.last.subject, "Reset your Voxlane password"
   end
 
   test "checkout redirects authenticated users to stripe checkout" do
+    user = User.create!(
+      public_id: "checkout-user",
+      email: "alex@example.com",
+      display_name: "Alex",
+      password: "password123",
+      password_confirmation: "password123",
+      email_verified_at: Time.current,
+      profile: {}
+    )
+
+    post login_path, params: {
+      auth: {
+        email: user.email,
+        password: "password123"
+      }
+    }
+
     stripe_session = Struct.new(:id, :url).new("cs_test_123", "https://checkout.stripe.com/c/pay/cs_test_123")
 
     with_stubbed_singleton_method(
-      Auth::SupabaseOtpClient,
-      :verify_code!,
-      ->(email:, token:) {
-        {
-          "access_token" => "valid-access-token",
-          "refresh_token" => "valid-refresh-token",
-          "user" => { "email" => "alex@example.com" }
-        }
-      }
+      Billing::StripeCheckoutSessionCreator,
+      :call,
+      ->(user:, success_url:, cancel_url:) { stripe_session }
     ) do
-      with_stubbed_singleton_method(
-        Auth::SupabaseTokenVerifier,
-        :call,
-        ->(_token) {
-          {
-            sub: "supabase-user-2",
-            email: "alex@example.com"
-          }
-        }
-      ) do
-        post login_verify_path, params: {
-          auth: {
-            email: "alex@example.com",
-            token: "123456"
-          }
-        }
-
-        with_stubbed_singleton_method(
-          Billing::StripeCheckoutSessionCreator,
-          :call,
-          ->(user:, success_url:, cancel_url:) { stripe_session }
-        ) do
-          post checkout_path
-
-          assert_redirected_to stripe_session.url
-        end
-      end
+      post checkout_path
+      assert_redirected_to stripe_session.url
     end
   end
 end

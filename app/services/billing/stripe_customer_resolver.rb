@@ -16,7 +16,7 @@ module Billing
         name: user.display_name,
         metadata: {
           user_id: user.id,
-          supabase_uid: user.supabase_uid
+          public_id: user.public_id
         }
       )
 

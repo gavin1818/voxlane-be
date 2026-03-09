@@ -1,44 +1,59 @@
 <section class="hero">
   <span class="hero__eyebrow">Account Access</span>
-  <h1 class="hero__title">Sign in to start your 7-day Voxlane trial.</h1>
+  <h1 class="hero__title">Sign in to Voxlane from the web or your Mac.</h1>
   <p class="hero__copy">
-    Use the same email you use in the macOS app. The website and desktop client both
-    rely on the same Supabase identity and server-side entitlement record.
+    Use Google or your email and password. The website, Stripe billing, and macOS app all share the same Voxlane account.
   </p>
 
-  <div class="split">
-    <div class="section-card stack">
-      <span class="kicker">Step 1</span>
-      <h2>Send a 6-digit code</h2>
-      <p>No password flow. Enter your email and we will send a short-lived login code.</p>
-      <%= form_with url: login_otp_path, scope: :auth, method: :post do |form| %>
-        <div class="field">
-          <%= form.label :email, "Email" %>
-          <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
-        </div>
-        <div class="button-row" style="margin-top: 16px;">
-          <%= form.submit "Send code", class: "button button--primary" %>
-        </div>
-      <% end %>
+  <div class="button-row" style="margin-top: 20px;">
+    <% if google_oauth_enabled? %>
+      <a class="button button--secondary" href="<%= google_auth_path %>">Continue with Google</a>
+    <% end %>
+    <a class="button button--ghost" href="<%= signup_path %>">Create account</a>
+  </div>
+</section>
+
+<section class="split">
+  <div class="section-card stack">
+    <span class="kicker">Email + password</span>
+    <h2>Welcome back</h2>
+    <p>Sign in to manage your profile, billing, devices, and desktop access.</p>
+
+    <%= form_with url: login_path, scope: :auth, method: :post do |form| %>
+      <div class="field">
+        <%= form.label :email, "Email" %>
+        <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
+      </div>
+      <div class="field" style="margin-top: 14px;">
+        <%= form.label :password, "Password" %>
+        <%= form.password_field :password, required: true, autocomplete: "current-password" %>
+      </div>
+      <div class="button-row" style="justify-content: space-between; margin-top: 16px; align-items: center;">
+        <%= form.submit "Sign in", class: "button button--primary" %>
+        <a class="nav-link" href="<%= forgot_password_path %>">Forgot password?</a>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="section-card stack">
+    <span class="kicker">New here?</span>
+    <h2>Create your account</h2>
+    <p>Start your trial, unlock desktop access, and manage Stripe billing from the same account center.</p>
+
+    <div class="grid" style="margin-top: 10px;">
+      <div class="grid-card">
+        <h3>Google</h3>
+        <p class="lede">One-click sign in for fast setup on the site and in the app.</p>
+      </div>
+      <div class="grid-card">
+        <h3>Email login</h3>
+        <p class="lede">Traditional email and password with password reset if you ever get locked out.</p>
+      </div>
     </div>
 
-    <div class="section-card stack">
-      <span class="kicker">Step 2</span>
-      <h2>Verify and continue</h2>
-      <p>Paste the code from your inbox to open your account dashboard and billing controls.</p>
-      <%= form_with url: login_verify_path, scope: :auth, method: :post do |form| %>
-        <div class="field">
-          <%= form.label :email, "Email" %>
-          <%= form.email_field :email, required: true, autocomplete: "email", value: @prefilled_email %>
-        </div>
-        <div class="field" style="margin-top: 14px;">
-          <%= form.label :token, "6-digit code" %>
-          <%= form.text_field :token, required: true, inputmode: "numeric", autocomplete: "one-time-code", placeholder: "123456" %>
-        </div>
-        <div class="button-row" style="margin-top: 16px;">
-          <%= form.submit "Verify and continue", class: "button button--primary" %>
-        </div>
-      <% end %>
+    <div class="button-row" style="margin-top: 18px;">
+      <a class="button button--primary" href="<%= signup_path %>">Create account</a>
+      <a class="button button--secondary" href="<%= support_path %>">Need help?</a>
     </div>
   </div>
 </section>

@@ -1,0 +1,62 @@
+<section class="hero">
+  <span class="hero__eyebrow">Create Account</span>
+  <h1 class="hero__title">Set up your Voxlane identity once.</h1>
+  <p class="hero__copy">
+    Your account powers website billing, profile settings, trial access, and the macOS app sign-in flow.
+  </p>
+
+  <div class="button-row" style="margin-top: 20px;">
+    <% if google_oauth_enabled? %>
+      <a class="button button--secondary" href="<%= google_auth_path %>">Continue with Google</a>
+    <% end %>
+    <a class="button button--ghost" href="<%= login_path %>">Already have an account?</a>
+  </div>
+</section>
+
+<section class="split">
+  <div class="section-card stack">
+    <span class="kicker">Email + password</span>
+    <h2>Create your account</h2>
+
+    <%= form_with model: @user, url: signup_path, scope: :user, method: :post do |form| %>
+      <div class="field">
+        <%= form.label :display_name, "Name" %>
+        <%= form.text_field :display_name, autocomplete: "name", placeholder: "Your name" %>
+      </div>
+      <div class="field" style="margin-top: 14px;">
+        <%= form.label :email, "Email" %>
+        <%= form.email_field :email, required: true, autocomplete: "email" %>
+      </div>
+      <div class="field" style="margin-top: 14px;">
+        <%= form.label :password, "Password" %>
+        <%= form.password_field :password, required: true, autocomplete: "new-password" %>
+      </div>
+      <div class="field" style="margin-top: 14px;">
+        <%= form.label :password_confirmation, "Confirm password" %>
+        <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password" %>
+      </div>
+      <div class="button-row" style="margin-top: 16px;">
+        <%= form.submit "Create account", class: "button button--primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="section-card stack">
+    <span class="kicker">Included</span>
+    <h2>One account, every surface</h2>
+    <div class="grid" style="margin-top: 10px;">
+      <div class="grid-card">
+        <h3>Profile</h3>
+        <p class="lede">Update your name and security settings from the account center.</p>
+      </div>
+      <div class="grid-card">
+        <h3>Billing</h3>
+        <p class="lede">Stripe checkout and billing portal stay connected to the same user identity.</p>
+      </div>
+      <div class="grid-card">
+        <h3>Desktop app</h3>
+        <p class="lede">Click login on macOS, finish in the browser, and Voxlane connects automatically.</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,37 +1,32 @@
 class Web::SessionsController < Web::BaseController
   def new
     redirect_to account_path if authenticated?
-    @prefilled_email = session[:pending_login_email].presence || current_user_email
-  end
-
-  def create_otp
-    email = normalized_email(otp_params[:email])
-
-    if email.blank?
-      redirect_to login_path, alert: "Enter your email to receive a sign-in code."
-      return
-    end
-
-    Auth::SupabaseOtpClient.request_code!(email: email)
-    session[:pending_login_email] = email
-    redirect_to login_path, notice: "We sent a 6-digit code to #{email}."
+    @prefilled_email = params[:email].presence || current_user_email
   end
 
   def create
-    email = normalized_email(verify_params[:email].presence || session[:pending_login_email])
-    token = verify_params[:token].to_s.strip
+    email = normalized_email(session_params[:email])
+    password = session_params[:password].to_s
 
-    if email.blank? || token.blank?
-      redirect_to login_path, alert: "Enter the email and the 6-digit code from your inbox."
+    if email.blank? || password.blank?
+      flash.now[:alert] = "Enter your email and password."
+      render :new, status: :unprocessable_entity
       return
     end
 
-    response = Auth::SupabaseOtpClient.verify_code!(email: email, token: token)
-    session_authenticator.clear!
-    session_authenticator.store!(response)
-    session.delete(:pending_login_email)
+    user = User.find_by(email: email)
+    authenticated_user = user&.authenticate(password)
 
-    redirect_after_sign_in(default: account_path)
+    unless authenticated_user
+      flash.now[:alert] = "Invalid email or password."
+      @prefilled_email = email
+      render :new, status: :unprocessable_entity
+      return
+    end
+
+    session_authenticator.clear!
+    session_authenticator.store!(authenticated_user)
+    complete_web_authentication!(authenticated_user, notice: "Welcome back.")
   end
 
   def destroy
@@ -41,12 +36,8 @@ class Web::SessionsController < Web::BaseController
 
   private
 
-  def otp_params
-    params.require(:auth).permit(:email)
-  end
-
-  def verify_params
-    params.require(:auth).permit(:email, :token)
+  def session_params
+    params.require(:auth).permit(:email, :password)
   end
 
   def normalized_email(value)

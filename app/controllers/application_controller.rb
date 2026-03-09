@@ -4,17 +4,18 @@ class ApplicationController < ActionController::API
 
   rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
-  rescue_from Auth::SupabaseOtpClient::RequestError, with: :render_auth_request_error
   rescue_from Auth::UnauthorizedError, with: :render_unauthorized
+  rescue_from Auth::GoogleOauthClient::RequestError, with: :render_auth_request_error
   rescue_from Stripe::StripeError, with: :render_stripe_error
   rescue_from KeyError, with: :render_configuration_error
 
   private
 
   def authenticate_user!
-    claims = Auth::SupabaseTokenVerifier.call(bearer_token)
-    Current.auth_claims = claims
-    Current.user = Auth::UserSync.call(claims)
+    authenticated = Auth::ApiAuthenticator.call(bearer_token)
+    Current.auth_claims = authenticated.claims
+    Current.user = authenticated.user
+    Current.auth_session = authenticated.auth_session
   end
 
   def current_user
@@ -50,8 +51,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_auth_request_error(error)
-    status = error.status.present? ? error.status : :bad_gateway
-    render json: { error: error.message }, status: status
+    render json: { error: error.message }, status: :bad_gateway
   end
 
   def render_stripe_error(error)

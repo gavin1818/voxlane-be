@@ -1,15 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  supabase_uid: MyString
-  email: MyString
-  display_name: MyString
+  public_id: user-one
+  email: one@example.com
+  display_name: One User
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  email_verified_at: 2026-03-07 11:08:08
   last_seen_at: 2026-03-07 11:08:08
-  profile: 
+  profile: {}
 
 two:
-  supabase_uid: MyString
-  email: MyString
-  display_name: MyString
+  public_id: user-two
+  email: two@example.com
+  display_name: Two User
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  email_verified_at: 2026-03-07 11:08:08
   last_seen_at: 2026-03-07 11:08:08
-  profile: 
+  profile: {}

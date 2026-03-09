@@ -1,4 +1,5 @@
 require "active_support/core_ext/integer/time"
+require "uri"
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -35,7 +36,25 @@ Rails.application.configure do
   # caching is enabled.
   config.action_mailer.perform_caching = false
 
-  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
+  frontend_uri = URI.parse(ENV.fetch("FRONTEND_URL", "http://localhost:3000"))
+  config.action_mailer.default_url_options = {
+    host: frontend_uri.host,
+    port: frontend_uri.port,
+    protocol: frontend_uri.scheme
+  }
+
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS"),
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USERNAME"].presence,
+      password: ENV["SMTP_PASSWORD"].presence,
+      authentication: ENV.fetch("SMTP_AUTHENTICATION", "plain"),
+      enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS_AUTO", "true") == "true",
+      domain: ENV["SMTP_DOMAIN"].presence
+    }.compact
+  end
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

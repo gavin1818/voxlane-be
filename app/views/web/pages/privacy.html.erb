@@ -2,13 +2,13 @@
   <span class="hero__eyebrow">Privacy</span>
   <h1 class="hero__title">How Voxlane handles account, billing, and app data.</h1>
   <p class="hero__copy">
-    Voxlane uses Supabase for account identity, Stripe for billing, and its own backend for entitlement and device records.
+    Voxlane uses its own account system for identity, Stripe for billing, and its backend for entitlement and device records.
   </p>
 </section>
 
 <section class="section-card">
   <ul style="margin-top: 12px;">
-    <li>Account login is handled through Supabase passwordless email authentication.</li>
+    <li>Account login is handled directly by Voxlane using Google OAuth or email and password.</li>
     <li>Subscription checkout and billing management are handled through Stripe-hosted pages.</li>
     <li>The backend stores user, entitlement, subscription, and device metadata needed to operate the service.</li>
     <li>Direct macOS updates are delivered through Sparkle using the signed appcast published on voxlane.io.</li>

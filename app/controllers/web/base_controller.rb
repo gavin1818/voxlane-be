@@ -5,9 +5,9 @@ class Web::BaseController < ActionController::Base
   layout "marketing"
   protect_from_forgery with: :exception
 
-  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email
+  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email, :google_oauth_enabled?
 
-  rescue_from Auth::SupabaseOtpClient::RequestError, with: :redirect_with_service_error
+  rescue_from Auth::GoogleOauthClient::RequestError, with: :redirect_with_service_error
   rescue_from Stripe::StripeError, with: :redirect_with_service_error
 
   private
@@ -25,6 +25,7 @@ class Web::BaseController < ActionController::Base
 
     Current.auth_claims = @authenticated_session.claims
     Current.user = @authenticated_session.user
+    Current.auth_session = @authenticated_session.auth_session
   end
 
   def session_authenticator
@@ -40,11 +41,15 @@ class Web::BaseController < ActionController::Base
   end
 
   def current_user_email
-    current_user&.email || session_authenticator.email
+    current_user&.email
   end
 
   def authenticated?
     current_user.present?
+  end
+
+  def google_oauth_enabled?
+    AppConfig.google_oauth_enabled?
   end
 
   def authenticate_web_user!
@@ -62,6 +67,42 @@ class Web::BaseController < ActionController::Base
     else
       redirect_to default
     end
+  end
+
+  def sign_in_web_user!(user)
+    session[:web_user_id] = user.id
+    Current.user = user
+  end
+
+  def complete_web_authentication!(user, notice: nil, default_redirect: account_path)
+    sign_in_web_user!(user)
+    flash[:notice] = notice if notice.present?
+
+    if (desktop_login_request = approve_pending_desktop_login_request(user))
+      redirect_to desktop_login_path(desktop_login_request.public_id)
+      return
+    end
+
+    redirect_after_sign_in(default: default_redirect)
+  end
+
+  def remember_desktop_login_request!(public_id)
+    session[:pending_desktop_login_request_id] = public_id
+  end
+
+  def clear_pending_desktop_login_request!
+    session.delete(:pending_desktop_login_request_id)
+  end
+
+  def approve_pending_desktop_login_request(user)
+    public_id = session.delete(:pending_desktop_login_request_id)
+    return if public_id.blank?
+
+    desktop_login_request = DesktopLoginRequest.find_by(public_id: public_id)
+    return if desktop_login_request.blank? || desktop_login_request.expired?
+    return if desktop_login_request.user.present? && desktop_login_request.user != user
+
+    desktop_login_request.approve!(user)
   end
 
   def redirect_with_service_error(error)

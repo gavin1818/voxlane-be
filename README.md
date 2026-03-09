@@ -1,49 +1,55 @@
 # Voxlane Backend
 
-Rails API backend for Voxlane website billing and desktop-app entitlements.
-
-## to access the production server and the dokku rails app server console
-ssh root@146.190.241.57
-dokku run voxlane-be rails console
+Rails backend for the Voxlane website, first-party authentication, Stripe billing, desktop entitlement sync, and Sparkle release metadata.
 
 ## Stack
 
-- Ruby `3.3.10` via `rbenv`
+- Ruby `3.3.10`
 - Rails `7.2`
 - PostgreSQL
-- Supabase Auth token verification
+- First-party auth with email/password, password reset, Google OAuth, JWT access tokens, and refresh sessions
 - Stripe Checkout, Customer Portal, and webhook syncing
 
 ## What This Backend Does
 
-- Authenticates users from Supabase bearer tokens
-- Proxies email OTP auth for desktop clients
-- Creates or updates local `users`
-- Serves website pages for login, pricing, account, release notes, and Sparkle appcast
-- Creates Stripe Checkout sessions for subscriptions
-- Creates Stripe Customer Portal sessions for self-service billing
+- Serves the website pages for login, signup, password reset, pricing, account, release notes, and Sparkle appcast
+- Issues first-party API sessions for the macOS client
+- Supports browser-based desktop login handoff for the macOS app
+- Reconciles the shared `pro` entitlement across web and desktop
+- Creates Stripe Checkout sessions and Customer Portal sessions
 - Processes Stripe webhooks and syncs subscriptions
-- Reconciles a single app entitlement key: `pro`
-- Registers desktop app devices
-- Issues a server-side account trial when no active subscription exists
+- Registers desktop devices and exposes account state to the app
 
-## API Endpoints
+## Main Routes
 
-- `GET /up`
 - `GET /`
 - `GET /pricing`
-- `GET /account`
 - `GET /login`
-- `POST /login/otp`
-- `POST /login/verify`
+- `POST /login`
+- `GET /signup`
+- `POST /signup`
+- `GET /forgot-password`
+- `POST /forgot-password`
+- `GET /reset-password/:token`
+- `PATCH /reset-password/:token`
+- `GET /auth/google`
+- `GET /auth/google/callback`
+- `GET /desktop-login/:public_id`
+- `GET /account`
+- `PATCH /account/profile`
+- `PATCH /account/password`
 - `DELETE /logout`
 - `POST /checkout`
 - `POST /billing/portal`
 - `GET /appcast.xml`
 - `GET /releases/latest`
-- `POST /api/v1/auth/otp`
-- `POST /api/v1/auth/verify`
+
+## API Routes
+
+- `POST /api/v1/auth/login`
 - `POST /api/v1/auth/refresh`
+- `POST /api/v1/auth/desktop_sessions`
+- `POST /api/v1/auth/desktop_sessions/:public_id/poll`
 - `GET /api/v1/me`
 - `GET /api/v1/app/entitlement`
 - `POST /api/v1/app/devices`
@@ -51,7 +57,7 @@ dokku run voxlane-be rails console
 - `POST /api/v1/billing/portal_sessions`
 - `POST /api/v1/webhooks/stripe`
 
-## Required Environment Variables
+## Environment
 
 Copy `.env.example` to `.env` and fill in real values.
 
@@ -59,33 +65,33 @@ Copy `.env.example` to `.env` and fill in real values.
 cp .env.example .env
 ```
 
-Main variables:
+Important variables:
 
-- `SUPABASE_URL`
-- `SUPABASE_JWT_SECRET` for local/shared-secret verification, or `SUPABASE_JWKS_URL` for JWKS verification
-- `SUPABASE_ANON_KEY`
-- `SUPABASE_JWT_AUD`
-- `SUPABASE_JWT_ISSUER`
+- `DATABASE_URL`
+- `AUTH_JWT_SECRET`
+- `AUTH_TOKEN_ISSUER`
+- `AUTH_TOKEN_AUDIENCE`
+- `AUTH_ACCESS_TOKEN_TTL_MINUTES`
+- `AUTH_REFRESH_TOKEN_TTL_DAYS`
+- `PASSWORD_RESET_TOKEN_TTL_MINUTES`
+- `DESKTOP_LOGIN_TTL_MINUTES`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRO_PRICE_ID`
 - `FRONTEND_URL`
-- `AUTH_EMAIL_REDIRECT_URL`
 - `CORS_ALLOWED_ORIGINS`
-- `TRIAL_DAYS`
-- `ENTITLEMENT_KEY`
+- `MAILER_FROM`
+- `SMTP_ADDRESS`
+- `SMTP_PORT`
+- `SMTP_USERNAME`
+- `SMTP_PASSWORD`
+- `SMTP_DOMAIN`
 - `SUPPORT_EMAIL`
 - `APP_DOWNLOAD_URL`
-- `STRIPE_PRICE_LABEL`
-- `SPARKLE_DOWNLOAD_URL`
-- `SPARKLE_DOWNLOAD_LENGTH`
-- `SPARKLE_EDDSA_SIGNATURE`
-- `SPARKLE_LATEST_VERSION`
-- `SPARKLE_LATEST_BUILD`
-- `SPARKLE_MINIMUM_SYSTEM_VERSION`
-- `SPARKLE_RELEASE_NOTES_URL`
-- `SPARKLE_RELEASE_NOTES_ITEMS`
-- `SPARKLE_PUBLISHED_AT`
+- `SPARKLE_*`
 
 ## Local Setup
 
@@ -99,68 +105,33 @@ bin/rails test
 bin/rails server
 ```
 
-## Stripe Webhooks
+## Desktop Flow
 
-Forward Stripe events locally:
+1. The macOS app posts to `POST /api/v1/auth/desktop_sessions`.
+2. The backend returns a browser verification URL plus a polling token.
+3. The app opens the website in the browser.
+4. The user signs in on the site with Google or email/password.
+5. The website approves the pending desktop login request.
+6. The app polls `POST /api/v1/auth/desktop_sessions/:public_id/poll` until it receives a first-party access token and refresh token.
+7. The app uses that bearer token for `/api/v1/me`, `/api/v1/app/entitlement`, and `/api/v1/app/devices`.
 
-```bash
-stripe listen --forward-to http://localhost:3000/api/v1/webhooks/stripe
-```
+## Billing Flow
 
-Use the signing secret printed by Stripe CLI as `STRIPE_WEBHOOK_SECRET`.
-
-Relevant events handled:
-
-- `checkout.session.completed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `invoice.paid`
-
-## Desktop-App Flow
-
-1. The app signs in through Supabase.
-2. The app uses backend auth proxy endpoints for OTP send/verify/refresh.
-3. The app sends the Supabase access token as `Authorization: Bearer <token>`.
-4. `GET /api/v1/me` or `GET /api/v1/app/entitlement` returns the current entitlement.
-5. `POST /api/v1/app/devices` registers the device identifier and app version.
-
-## Website Billing Flow
-
-1. User signs in on `/login` using Supabase email OTP.
-2. Rails stores Supabase access and refresh tokens in a cookie-backed session.
-3. `/pricing` and `/account` render the current entitlement status directly from the backend.
-4. Website posts to `/checkout` or `/billing/portal`.
-5. Backend creates or reuses the Stripe customer for the authenticated user and redirects to Stripe.
-6. Stripe webhook updates `subscriptions` and `entitlements`.
-7. The macOS app and website both see the same entitlement on the next refresh.
-
-## Supabase Auth Setup
-
-- Set `Authentication -> URL Configuration -> Site URL` to your production site instead of the default `http://localhost:3000`.
-- Add your production login/callback URL to `Redirect URLs`.
-- Set `AUTH_EMAIL_REDIRECT_URL` in this backend if you want OTP signup confirmations to land on a specific page or app deep link.
-- Customize `Authentication -> Email Templates` so passwordless email uses `{{ .Token }}` instead of `{{ .ConfirmationURL }}` when you want a 6-digit code instead of a plain confirmation link.
-
-## Sparkle Release Flow
-
-1. Build, sign, notarize, and upload the direct macOS release zip.
-2. Generate an EdDSA signature for the archive.
-3. Set `SPARKLE_*` environment variables in the backend.
-4. `GET /appcast.xml` serves the signed appcast entry Sparkle consumes.
-5. `GET /releases/latest` serves release notes linked from the appcast.
+1. The user signs in on the website.
+2. The site posts to `/checkout` or `/billing/portal`.
+3. Stripe redirects back to the site.
+4. Stripe webhooks update `subscriptions` and `entitlements`.
+5. The website and macOS app read the same entitlement state on the next refresh.
 
 ## Data Model
 
 - `users`
+- `auth_identities`
+- `auth_sessions`
+- `password_reset_tokens`
+- `desktop_login_requests`
 - `billing_customers`
 - `subscriptions`
 - `entitlements`
 - `devices`
 - `webhook_events`
-
-## Notes
-
-- This backend keeps the source of truth for entitlement state on the server.
-- Trial access is account-based, not device-based.
-- Current implementation assumes one main entitlement key, defaulting to `pro`.

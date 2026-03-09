@@ -2,16 +2,60 @@ require "uri"
 
 class AppConfig
   class << self
+    def auth_jwt_secret
+      ENV["AUTH_JWT_SECRET"].presence || Rails.application.secret_key_base
+    end
+
+    def auth_token_issuer
+      ENV.fetch("AUTH_TOKEN_ISSUER", "voxlane-auth")
+    end
+
+    def auth_token_audience
+      ENV.fetch("AUTH_TOKEN_AUDIENCE", "voxlane-api")
+    end
+
+    def auth_access_token_ttl
+      ENV.fetch("AUTH_ACCESS_TOKEN_TTL_MINUTES", 15).to_i.minutes
+    end
+
+    def auth_refresh_token_ttl
+      ENV.fetch("AUTH_REFRESH_TOKEN_TTL_DAYS", 30).to_i.days
+    end
+
+    def password_reset_token_ttl
+      ENV.fetch("PASSWORD_RESET_TOKEN_TTL_MINUTES", 30).to_i.minutes
+    end
+
+    def desktop_login_ttl
+      ENV.fetch("DESKTOP_LOGIN_TTL_MINUTES", 10).to_i.minutes
+    end
+
+    def mailer_from
+      ENV.fetch("MAILER_FROM", "Voxlane <support@voxlane.io>")
+    end
+
+    def google_client_id
+      ENV["GOOGLE_CLIENT_ID"].to_s.strip
+    end
+
+    def google_client_secret
+      ENV["GOOGLE_CLIENT_SECRET"].to_s.strip
+    end
+
+    def google_redirect_uri
+      ENV["GOOGLE_REDIRECT_URI"].presence || "#{frontend_url.chomp("/")}/auth/google/callback"
+    end
+
+    def google_oauth_enabled?
+      google_client_id.present? && google_client_secret.present?
+    end
+
     def entitlement_key
       ENV.fetch("ENTITLEMENT_KEY", "pro")
     end
 
     def frontend_url
       ENV.fetch("FRONTEND_URL", "http://localhost:3000")
-    end
-
-    def auth_email_redirect_url
-      ENV["AUTH_EMAIL_REDIRECT_URL"].presence || "#{frontend_url.chomp("/")}/login"
     end
 
     def allowed_origins
@@ -94,7 +138,7 @@ class AppConfig
     def sparkle_release_notes_items
       ENV.fetch(
         "SPARKLE_RELEASE_NOTES_ITEMS",
-        "Account-based login|Stripe billing|Website checkout|Sparkle auto updates"
+        "Browser-based sign in|Stripe billing|Website checkout|Sparkle auto updates"
       ).split("|").map(&:strip).reject(&:empty?)
     end
 

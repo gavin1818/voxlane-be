@@ -18,7 +18,7 @@ class Api::V1::App::DevicesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :created
 
-    user = User.find_by!(supabase_uid: "device-user")
+    user = User.find_by!(public_id: "device-user")
     device = user.devices.find_by!(device_identifier: "device-abc")
 
     assert_equal "macos", device.platform

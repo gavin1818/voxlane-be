@@ -45,7 +45,8 @@ module Billing
 
     def resolve_user(metadata)
       return User.find_by(id: metadata["user_id"]) if metadata["user_id"].present?
-      return User.find_by(supabase_uid: metadata["supabase_uid"]) if metadata["supabase_uid"].present?
+      return User.find_by(public_id: metadata["public_id"]) if metadata["public_id"].present?
+      return User.find_by(public_id: metadata["supabase_uid"]) if metadata["supabase_uid"].present?
 
       nil
     end

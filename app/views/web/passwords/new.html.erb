@@ -1,0 +1,20 @@
+<section class="hero">
+  <span class="hero__eyebrow">Password Reset</span>
+  <h1 class="hero__title">Reset your Voxlane password.</h1>
+  <p class="hero__copy">
+    Enter the email on your account and we will send you a secure reset link.
+  </p>
+</section>
+
+<section class="section-card stack" style="max-width: 620px; margin: 0 auto;">
+  <%= form_with url: forgot_password_path, scope: :password, method: :post do |form| %>
+    <div class="field">
+      <%= form.label :email, "Email" %>
+      <%= form.email_field :email, required: true, autocomplete: "email", placeholder: "you@company.com" %>
+    </div>
+    <div class="button-row" style="margin-top: 16px;">
+      <%= form.submit "Send reset link", class: "button button--primary" %>
+      <a class="button button--ghost" href="<%= login_path %>">Back to sign in</a>
+    </div>
+  <% end %>
+</section>

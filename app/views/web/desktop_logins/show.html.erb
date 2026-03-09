@@ -1,0 +1,31 @@
+<% if @desktop_login_request.expired? %>
+  <section class="hero">
+    <span class="hero__eyebrow">Desktop Sign-In</span>
+    <h1 class="hero__title">That sign-in request expired.</h1>
+    <p class="hero__copy">Return to Voxlane on your Mac and start the browser login flow again.</p>
+  </section>
+<% else %>
+  <section class="hero">
+    <span class="hero__eyebrow">Desktop Sign-In</span>
+    <h1 class="hero__title">Your Mac is ready.</h1>
+    <p class="hero__copy">
+      You are signed in as <strong><%= current_user.email %></strong>. Return to the Voxlane app and it will finish connecting automatically.
+    </p>
+  </section>
+
+  <section class="section-card">
+    <div class="grid">
+      <div class="grid-card">
+        <h3>What happens next</h3>
+        <p class="lede">The desktop app is polling for approval. Keep this tab open for a few seconds or switch back to the app now.</p>
+      </div>
+      <div class="grid-card">
+        <h3>Need account changes?</h3>
+        <p class="lede">You can update your profile, password, and billing details from the account center.</p>
+        <div class="button-row" style="margin-top: 14px;">
+          <a class="button button--primary" href="<%= account_path %>">Open account</a>
+        </div>
+      </div>
+    </div>
+  </section>
+<% end %>

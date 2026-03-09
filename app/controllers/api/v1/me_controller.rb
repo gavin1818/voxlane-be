@@ -5,7 +5,7 @@ class Api::V1::MeController < ApplicationController
     render json: {
       user: {
         id: current_user.id,
-        supabase_uid: current_user.supabase_uid,
+        public_id: current_user.public_id,
         email: current_user.email,
         display_name: current_user.display_name,
         last_seen_at: current_user.last_seen_at

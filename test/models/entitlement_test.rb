@@ -3,9 +3,11 @@ require "test_helper"
 class EntitlementTest < ActiveSupport::TestCase
   test "reconciler grants active access when the user has an active stripe subscription" do
     user = User.create!(
-      supabase_uid: "subscriber-1",
+      public_id: "subscriber-1",
       email: "subscriber@voxlane.io",
       display_name: "Subscriber",
+      skip_password_requirement: true,
+      email_verified_at: Time.current,
       profile: {}
     )
 

@@ -15,7 +15,7 @@ end %>
   <span class="hero__eyebrow">Account Center</span>
   <h1 class="hero__title">Manage your profile, billing, devices, and support in one place.</h1>
   <p class="hero__copy">
-    Your website account, Stripe subscription, and macOS entitlement all stay tied to the same Voxlane identity.
+    Your website account, Google or email sign-in, Stripe subscription, and macOS entitlement all stay tied to the same Voxlane identity.
   </p>
 
   <div class="button-row">
@@ -58,7 +58,7 @@ end %>
           <label>Email</label>
           <input type="email" value="<%= current_user.email %>" disabled>
         </div>
-        <p class="meta" style="margin-top: 12px;">Email login is managed through Supabase passwordless auth.</p>
+        <p class="meta" style="margin-top: 12px;">Use this profile across the website, billing flows, and the Voxlane macOS app.</p>
         <div class="button-row" style="margin-top: 16px;">
           <%= form.submit "Save profile", class: "button button--primary" %>
         </div>
@@ -84,6 +84,64 @@ end %>
           <span class="meta-card__value"><%= current_user.last_seen_at&.strftime("%b %-d, %Y %H:%M") || "n/a" %></span>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-card">
+  <span class="kicker">Security</span>
+  <h2 style="margin-top: 6px;">Sign-in methods and password</h2>
+
+  <div class="split" style="margin-top: 18px;">
+    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+      <h3>Password</h3>
+      <p class="lede">
+        <% if current_user.password_login_enabled? %>
+          Update your password for email sign-in.
+        <% else %>
+          You currently use Google-only sign-in. Set a password here if you also want email login.
+        <% end %>
+      </p>
+
+      <%= form_with url: account_password_path, scope: :password, method: :patch do |form| %>
+        <% if current_user.password_login_enabled? %>
+          <div class="field">
+            <%= form.label :current_password, "Current password" %>
+            <%= form.password_field :current_password, autocomplete: "current-password" %>
+          </div>
+        <% end %>
+        <div class="field" style="margin-top: 14px;">
+          <%= form.label :password, current_user.password_login_enabled? ? "New password" : "Set password" %>
+          <%= form.password_field :password, autocomplete: "new-password" %>
+        </div>
+        <div class="field" style="margin-top: 14px;">
+          <%= form.label :password_confirmation, "Confirm password" %>
+          <%= form.password_field :password_confirmation, autocomplete: "new-password" %>
+        </div>
+        <div class="button-row" style="margin-top: 16px;">
+          <%= form.submit current_user.password_login_enabled? ? "Update password" : "Enable email login", class: "button button--primary" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="section-card stack" style="box-shadow: none; background: rgba(255, 255, 255, 0.7);">
+      <h3>Connected sign-in methods</h3>
+      <div class="meta-grid" style="margin-top: 12px;">
+        <div class="meta-card">
+          <span class="meta-card__label">Email login</span>
+          <span class="meta-card__value"><%= current_user.password_login_enabled? ? "Enabled" : "Not configured" %></span>
+        </div>
+        <div class="meta-card">
+          <span class="meta-card__label">Google</span>
+          <span class="meta-card__value"><%= current_user.google_connected? ? "Connected" : "Not connected" %></span>
+        </div>
+      </div>
+
+      <% if google_oauth_enabled? && !current_user.google_connected? %>
+        <div class="button-row" style="margin-top: 16px;">
+          <a class="button button--secondary" href="<%= google_auth_path %>">Connect with Google</a>
+        </div>
+      <% end %>
     </div>
   </div>
 </section>
