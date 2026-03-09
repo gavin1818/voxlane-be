@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   patch "account/password", to: "web/accounts#update_password", as: :account_password
   get "login", to: "web/sessions#new", as: :login
   get "login/email", to: "web/sessions#email", as: :login_email
+  post "login/email", to: "web/sessions#email_continue"
   post "login", to: "web/sessions#create"
   get "signup", to: "web/registrations#new", as: :signup
   post "signup", to: "web/registrations#create"

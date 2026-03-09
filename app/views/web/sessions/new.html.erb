@@ -1,15 +1,15 @@
-<section class="auth-shell">
-  <div class="auth-panel">
+<section class="auth-shell auth-shell--chooser">
+  <div class="auth-panel auth-panel--chooser">
     <div class="auth-panel__mark" aria-hidden="true">
       <span></span>
     </div>
 
-    <h1 class="auth-panel__title">Welcome to Voxlane</h1>
+    <h1 class="auth-panel__title auth-panel__title--compact">Welcome to <%= AppConfig.app_name %></h1>
     <p class="auth-panel__copy">
       <% if params[:desktop_login].present? %>
-        Sign in to finish connecting the Voxlane Mac app.
+        Sign in to finish connecting the <%= AppConfig.app_name %> Mac app.
       <% else %>
-        Voice keyboard that signs in through your Voxlane account.
+        Voice keyboard that keeps your web account, 7-day trial, and Mac access in one place.
       <% end %>
     </p>
 

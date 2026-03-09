@@ -39,7 +39,29 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
 
     get login_email_path
     assert_response :success
-    assert_includes response.body, "Email login"
+    assert_includes response.body, "Sign in with email"
+    assert_includes response.body, "Continue with email"
+  end
+
+  test "email flow reveals password step for existing users" do
+    user = User.create!(
+      public_id: "email-flow-user",
+      email: "alex@example.com",
+      display_name: "Alex",
+      password: "password123",
+      password_confirmation: "password123",
+      email_verified_at: Time.current,
+      profile: {}
+    )
+
+    post login_email_path, params: {
+      auth: {
+        email: user.email
+      }
+    }
+
+    assert_response :success
+    assert_includes response.body, "Enter your password"
     assert_includes response.body, "Forgot password?"
   end
 

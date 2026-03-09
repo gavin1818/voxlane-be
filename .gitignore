@@ -16,7 +16,7 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-
+.playwright-cli
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/

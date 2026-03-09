@@ -1,12 +1,34 @@
 class Web::SessionsController < Web::BaseController
+  before_action :redirect_authenticated_user!, only: %i[new email email_continue]
+
   def new
-    redirect_to account_path if authenticated?
     @prefilled_email = params[:email].presence || current_user_email
   end
 
   def email
-    redirect_to account_path if authenticated?
     @prefilled_email = params[:email].presence || current_user_email
+    @password_step = ActiveModel::Type::Boolean.new.cast(params[:password_step])
+  end
+
+  def email_continue
+    email = normalized_email(email_lookup_params[:email])
+
+    if email.blank?
+      flash.now[:alert] = "Enter your email address."
+      @prefilled_email = ""
+      @password_step = false
+      render :email, status: :unprocessable_entity
+      return
+    end
+
+    @prefilled_email = email
+
+    if User.exists?(email: email)
+      @password_step = true
+      render :email
+    else
+      redirect_to signup_path(email: email, desktop_login: params[:desktop_login]), notice: "Create your account to continue."
+    end
   end
 
   def create
@@ -16,6 +38,7 @@ class Web::SessionsController < Web::BaseController
     if email.blank? || password.blank?
       flash.now[:alert] = "Enter your email and password."
       @prefilled_email = email
+      @password_step = true
       render :email, status: :unprocessable_entity
       return
     end
@@ -26,6 +49,7 @@ class Web::SessionsController < Web::BaseController
     unless authenticated_user
       flash.now[:alert] = "Invalid email or password."
       @prefilled_email = email
+      @password_step = true
       render :email, status: :unprocessable_entity
       return
     end
@@ -42,8 +66,16 @@ class Web::SessionsController < Web::BaseController
 
   private
 
+  def redirect_authenticated_user!
+    redirect_to account_path if authenticated?
+  end
+
   def session_params
     params.require(:auth).permit(:email, :password)
+  end
+
+  def email_lookup_params
+    params.require(:auth).permit(:email)
   end
 
   def normalized_email(value)
