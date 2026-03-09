@@ -6,7 +6,7 @@ gem "rails", "~> 7.2.2", ">= 7.2.2.2"
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
-gem "jwt", "~> 2.9"
+gem "jwt", "~> 3.1"
 gem "bcrypt", "~> 3.1"
 gem "rack-cors"
 gem "stripe", "~> 16.0"
