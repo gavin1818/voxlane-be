@@ -36,7 +36,7 @@ class Web::BaseController < ActionController::Base
   end
 
   def session_authenticator
-    @session_authenticator ||= Web::SessionAuthenticator.new(session: session)
+    @session_authenticator ||= Web::SessionAuthenticator.new(session: session, request: request)
   end
 
   def current_user
@@ -92,8 +92,16 @@ class Web::BaseController < ActionController::Base
   end
 
   def sign_in_web_user!(user, auth_method: nil)
-    session_authenticator.store!(user, auth_method:)
+    auth_session = session_authenticator.store!(
+      user,
+      auth_method:,
+      metadata: {
+        user_agent: request.user_agent,
+        ip_address: request.remote_ip
+      }
+    )
     Current.user = user
+    Current.auth_session = auth_session
   end
 
   def complete_web_authentication!(user, notice: nil, default_redirect: account_path, auth_method: nil)

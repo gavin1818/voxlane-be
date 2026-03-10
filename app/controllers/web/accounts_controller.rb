@@ -27,7 +27,8 @@ class Web::AccountsController < Web::BaseController
 
     if current_user.save
       current_user.auth_sessions.update_all(revoked_at: Time.current, updated_at: Time.current)
-      redirect_to account_path, notice: "Password updated."
+      reset_session
+      redirect_to login_path(email: current_user.email), notice: "Password updated. Sign in again."
     else
       redirect_to account_path, alert: current_user.errors.full_messages.to_sentence
     end

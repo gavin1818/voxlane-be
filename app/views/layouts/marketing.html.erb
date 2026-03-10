@@ -86,7 +86,11 @@
             <a href="<%= terms_path %>">Terms</a>
             <a href="<%= release_notes_path %>">Release notes</a>
             <% unless home_page %>
-              <a href="<%= login_path %>">Sign in</a>
+              <% if authenticated? %>
+                <a href="<%= account_path %>">Account</a>
+              <% else %>
+                <a href="<%= login_path %>">Sign in</a>
+              <% end %>
             <% end %>
           </div>
         </footer>

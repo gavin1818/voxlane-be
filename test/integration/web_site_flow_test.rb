@@ -196,6 +196,61 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Alex Founder"
   end
 
+  test "password updates revoke the current web session and require re-authentication" do
+    user = create_web_user(email: "security@example.com")
+    sign_in_web_user(user)
+
+    patch account_password_path, params: {
+      password: {
+        current_password: "password123",
+        password: "new-password123",
+        password_confirmation: "new-password123"
+      }
+    }
+
+    assert_redirected_to login_path(email: user.email)
+    assert user.auth_sessions.reload.all? { |auth_session| auth_session.revoked_at.present? }
+
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "Password updated. Sign in again."
+
+    get account_path
+    assert_redirected_to login_path
+
+    post login_path, params: {
+      auth: {
+        email: user.email,
+        password: "password123"
+      }
+    }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Invalid email or password."
+
+    post login_path, params: {
+      auth: {
+        email: user.email,
+        password: "new-password123"
+      }
+    }
+
+    assert_redirected_to account_path
+  end
+
+  test "sign out revokes the current web auth session" do
+    user = create_web_user(email: "logout@example.com")
+    sign_in_web_user(user)
+
+    auth_session = user.auth_sessions.order(created_at: :desc).first
+    assert auth_session.active?
+
+    delete logout_path
+
+    assert_redirected_to pricing_path
+    assert_not auth_session.reload.active?
+  end
+
   test "authenticated users visiting login pages with a desktop request auto-approve the desktop app" do
     user = User.create!(
       public_id: "desktop-login-user",
@@ -410,5 +465,16 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Manage subscription"
     assert_not_includes response.body, "Cancel auto-renew"
     assert_not_includes response.body, "Resume renewal"
+  end
+
+  test "authenticated account page footer links back to the account instead of sign in" do
+    user = create_web_user(email: "footer@example.com")
+    sign_in_web_user(user)
+
+    get account_path
+
+    assert_response :success
+    assert_includes response.body, "href=\"/account\">Account</a>"
+    assert_not_includes response.body, "href=\"/login\">Sign in</a>"
   end
 end

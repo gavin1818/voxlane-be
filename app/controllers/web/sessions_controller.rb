@@ -58,6 +58,7 @@ class Web::SessionsController < Web::BaseController
   end
 
   def destroy
+    @authenticated_session&.auth_session&.revoke!
     reset_session
     redirect_to pricing_path, notice: "You have signed out."
   end
