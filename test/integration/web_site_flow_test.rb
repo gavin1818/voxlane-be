@@ -44,6 +44,7 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     get root_path
     assert_response :success
     assert_includes response.body, "Voxlane"
+    assert_not_includes response.body, "googletagmanager.com/gtag/js"
 
     get pricing_path
     assert_response :success
@@ -58,6 +59,16 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Application Terms of Service"
     assert_includes response.body, "Subscriptions, trials, and billing"
+  end
+
+  test "marketing pages include google analytics when configured" do
+    with_stubbed_singleton_method(AppConfig, :google_analytics_measurement_id, -> { "G-TEST123456" }) do
+      get root_path
+
+      assert_response :success
+      assert_includes response.body, "https://www.googletagmanager.com/gtag/js?id=G-TEST123456"
+      assert_includes response.body, "gtag('config', 'G-TEST123456');"
+    end
   end
 
   test "login pages render provider chooser and dedicated email flow" do

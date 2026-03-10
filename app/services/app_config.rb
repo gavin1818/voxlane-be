@@ -50,6 +50,14 @@ class AppConfig
       google_client_id.present? && google_client_secret.present?
     end
 
+    def google_analytics_measurement_id
+      ENV["GOOGLE_ANALYTICS_MEASUREMENT_ID"].to_s.strip
+    end
+
+    def google_analytics_enabled?
+      google_analytics_measurement_id.present?
+    end
+
     def apple_service_id
       ENV["APPLE_SERVICE_ID"].to_s.strip
     end
