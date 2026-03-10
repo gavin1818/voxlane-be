@@ -304,7 +304,8 @@ end %>
         </p>
 
         <%= form_with url: account_password_path, scope: :password, method: :patch, html: { class: "stack-form" } do |form| %>
-          <%= hidden_field_tag "password[email]", current_user.email, autocomplete: "username" %>
+          <%= label_tag "password_email", "Email address", class: "sr-only" %>
+          <%= email_field_tag "password[email]", current_user.email, class: "sr-only", autocomplete: "username", tabindex: -1, id: "password_email" %>
           <% if current_user.password_login_enabled? %>
             <div class="field">
               <%= form.label :current_password, "Current password" %>

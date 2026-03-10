@@ -19,7 +19,8 @@
 
       <%= form_with url: login_path, scope: :auth, method: :post, html: { class: "auth-form" } do |form| %>
         <%= hidden_field_tag :desktop_login, params[:desktop_login] if params[:desktop_login].present? %>
-        <%= form.hidden_field :email, value: @prefilled_email, autocomplete: "username" %>
+        <%= form.label :email, "Email address", class: "sr-only" %>
+        <%= form.email_field :email, value: @prefilled_email, autocomplete: "username", class: "sr-only", tabindex: -1 %>
 
         <div class="auth-field">
           <%= form.label :password, "Password", class: "sr-only" %>
