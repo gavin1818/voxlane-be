@@ -1,4 +1,5 @@
 require "test_helper"
+require "uri"
 
 class WebSiteFlowTest < ActionDispatch::IntegrationTest
   private def with_stubbed_singleton_method(object, method_name, implementation)
@@ -110,6 +111,56 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Alex Founder"
     assert_includes response.body, "Connected sign-in methods"
+    assert_includes response.body, "Update password"
+  end
+
+  test "google sign-in hides password setup on the account page" do
+    with_stubbed_singleton_method(
+      Auth::GoogleOauthClient,
+      :authorization_url,
+      ->(state:) { "https://accounts.google.test/o/oauth2/v2/auth?state=#{state}" }
+    ) do
+      with_stubbed_singleton_method(
+        Auth::GoogleOauthClient,
+        :fetch_profile!,
+        lambda { |code:|
+          {
+            sub: "google-user-123",
+            email: "google-user@example.com",
+            email_verified: true,
+            name: "Google User"
+          }
+        }
+      ) do
+        get google_auth_path
+
+        state = Rack::Utils.parse_query(URI.parse(response.redirect_url).query).fetch("state")
+        get google_auth_callback_path, params: { state:, code: "oauth-code" }
+
+        assert_redirected_to account_path
+        follow_redirect!
+
+        assert_response :success
+        assert_includes response.body, "Signed in with Google."
+        assert_includes response.body, "Connected sign-in methods"
+        assert_not_includes response.body, "Enable email login"
+        assert_not_includes response.body, "Set password"
+        assert_not_includes response.body, "Sign-in methods and password"
+
+        patch account_password_path, params: {
+          password: {
+            password: "password123",
+            password_confirmation: "password123"
+          }
+        }
+
+        assert_redirected_to account_path
+        follow_redirect!
+
+        assert_includes response.body, "Email login setup is unavailable for Google or Apple sign-in sessions."
+        assert_not User.find_by!(email: "google-user@example.com").password_login_enabled?
+      end
+    end
   end
 
   test "email login signs the user in and allows profile updates" do

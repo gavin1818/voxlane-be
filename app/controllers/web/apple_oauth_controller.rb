@@ -47,7 +47,11 @@ class Web::AppleOauthController < Web::BaseController
       user_payload: parsed_user_payload(params[:user])
     )
 
-    complete_web_authentication!(user, notice: "Signed in with Apple.")
+    complete_web_authentication!(
+      user,
+      notice: "Signed in with Apple.",
+      auth_method: AuthIdentity::PROVIDER_APPLE
+    )
   end
 
   private

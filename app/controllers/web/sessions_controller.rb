@@ -54,9 +54,7 @@ class Web::SessionsController < Web::BaseController
       return
     end
 
-    session_authenticator.clear!
-    session_authenticator.store!(authenticated_user)
-    complete_web_authentication!(authenticated_user, notice: "Welcome back.")
+    complete_web_authentication!(authenticated_user, notice: "Welcome back.", auth_method: "password")
   end
 
   def destroy

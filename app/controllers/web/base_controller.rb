@@ -5,7 +5,7 @@ class Web::BaseController < ActionController::Base
   layout "marketing"
   protect_from_forgery with: :exception
 
-  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email, :google_oauth_enabled?, :apple_oauth_enabled?
+  helper_method :current_user, :current_entitlement, :authenticated?, :current_user_email, :google_oauth_enabled?, :apple_oauth_enabled?, :password_settings_visible?
 
   rescue_from Auth::GoogleOauthClient::RequestError, with: :redirect_with_service_error
   rescue_from Auth::AppleOauthClient::RequestError, with: :redirect_with_service_error
@@ -51,6 +51,17 @@ class Web::BaseController < ActionController::Base
     current_user&.email
   end
 
+  def current_web_auth_method
+    @authenticated_session&.auth_method.to_s.presence
+  end
+
+  def password_settings_visible?
+    return false unless current_user
+    return true if current_user.password_login_enabled?
+
+    !current_web_auth_method.in?([ AuthIdentity::PROVIDER_GOOGLE, AuthIdentity::PROVIDER_APPLE ])
+  end
+
   def authenticated?
     current_user.present?
   end
@@ -80,13 +91,13 @@ class Web::BaseController < ActionController::Base
     end
   end
 
-  def sign_in_web_user!(user)
-    session[:web_user_id] = user.id
+  def sign_in_web_user!(user, auth_method: nil)
+    session_authenticator.store!(user, auth_method:)
     Current.user = user
   end
 
-  def complete_web_authentication!(user, notice: nil, default_redirect: account_path)
-    sign_in_web_user!(user)
+  def complete_web_authentication!(user, notice: nil, default_redirect: account_path, auth_method: nil)
+    sign_in_web_user!(user, auth_method:)
     flash[:notice] = notice if notice.present?
 
     if (desktop_login_request = approve_pending_desktop_login_request(user))

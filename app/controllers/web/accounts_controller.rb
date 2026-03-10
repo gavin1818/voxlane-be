@@ -10,6 +10,11 @@ class Web::AccountsController < Web::BaseController
   end
 
   def update_password
+    unless password_settings_visible?
+      redirect_to account_path, alert: "Email login setup is unavailable for Google or Apple sign-in sessions."
+      return
+    end
+
     current_password = password_params[:current_password].to_s
 
     if current_user.password_login_enabled? && !current_user.authenticate(current_password)

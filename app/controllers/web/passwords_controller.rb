@@ -27,7 +27,8 @@ class Web::PasswordsController < Web::BaseController
       @password_reset_token.user.auth_sessions.update_all(revoked_at: Time.current, updated_at: Time.current)
       complete_web_authentication!(
         @password_reset_token.user,
-        notice: "Password reset. You are now signed in."
+        notice: "Password reset. You are now signed in.",
+        auth_method: "password"
       )
     else
       @raw_token = params[:token]

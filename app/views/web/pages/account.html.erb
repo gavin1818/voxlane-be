@@ -295,42 +295,50 @@ end %>
   <div class="section-heading-row">
     <div class="section-heading-copy">
       <span class="kicker">Security</span>
-      <h2>Sign-in methods and password</h2>
-      <p class="meta">Add a password, keep email login current, and link social providers when available.</p>
+      <h2><%= password_settings_visible? ? "Sign-in methods and password" : "Sign-in methods" %></h2>
+      <p class="meta">
+        <% if password_settings_visible? %>
+          Add a password, keep email login current, and link social providers when available.
+        <% else %>
+          Manage the sign-in providers connected to this account.
+        <% end %>
+      </p>
     </div>
   </div>
 
-  <div class="split">
-    <div class="section-card section-card--subtle stack">
-      <h3>Password</h3>
-      <p class="lede">
-        <% if current_user.password_login_enabled? %>
-          Update your password for email sign-in.
-        <% else %>
-          You do not have email login enabled yet. Set a password if you also want to sign in by email.
-        <% end %>
-      </p>
+  <div class="split<%= " split--single" unless password_settings_visible? %>">
+    <% if password_settings_visible? %>
+      <div class="section-card section-card--subtle stack">
+        <h3>Password</h3>
+        <p class="lede">
+          <% if current_user.password_login_enabled? %>
+            Update your password for email sign-in.
+          <% else %>
+            You do not have email login enabled yet. Set a password if you also want to sign in by email.
+          <% end %>
+        </p>
 
-      <%= form_with url: account_password_path, scope: :password, method: :patch, html: { class: "stack-form" } do |form| %>
-        <% if current_user.password_login_enabled? %>
+        <%= form_with url: account_password_path, scope: :password, method: :patch, html: { class: "stack-form" } do |form| %>
+          <% if current_user.password_login_enabled? %>
+            <div class="field">
+              <%= form.label :current_password, "Current password" %>
+              <%= form.password_field :current_password, autocomplete: "current-password" %>
+            </div>
+          <% end %>
           <div class="field">
-            <%= form.label :current_password, "Current password" %>
-            <%= form.password_field :current_password, autocomplete: "current-password" %>
+            <%= form.label :password, current_user.password_login_enabled? ? "New password" : "Set password" %>
+            <%= form.password_field :password, autocomplete: "new-password" %>
+          </div>
+          <div class="field">
+            <%= form.label :password_confirmation, "Confirm password" %>
+            <%= form.password_field :password_confirmation, autocomplete: "new-password" %>
+          </div>
+          <div class="button-row">
+            <%= form.submit current_user.password_login_enabled? ? "Update password" : "Enable email login", class: "button button--primary" %>
           </div>
         <% end %>
-        <div class="field">
-          <%= form.label :password, current_user.password_login_enabled? ? "New password" : "Set password" %>
-          <%= form.password_field :password, autocomplete: "new-password" %>
-        </div>
-        <div class="field">
-          <%= form.label :password_confirmation, "Confirm password" %>
-          <%= form.password_field :password_confirmation, autocomplete: "new-password" %>
-        </div>
-        <div class="button-row">
-          <%= form.submit current_user.password_login_enabled? ? "Update password" : "Enable email login", class: "button button--primary" %>
-        </div>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
 
     <div class="section-card section-card--subtle stack">
       <h3>Connected sign-in methods</h3>

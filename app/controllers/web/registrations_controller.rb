@@ -10,7 +10,7 @@ class Web::RegistrationsController < Web::BaseController
     @user.email_verified_at = Time.current
 
     if @user.save
-      complete_web_authentication!(@user, notice: "Your account is ready.")
+      complete_web_authentication!(@user, notice: "Your account is ready.", auth_method: "password")
     else
       flash.now[:alert] = @user.errors.full_messages.to_sentence
       render :new, status: :unprocessable_entity

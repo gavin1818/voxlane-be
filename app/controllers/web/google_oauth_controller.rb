@@ -19,6 +19,10 @@ class Web::GoogleOauthController < Web::BaseController
     profile = Auth::GoogleOauthClient.fetch_profile!(code: params[:code].to_s)
     user = Auth::GoogleUserResolver.call(profile)
 
-    complete_web_authentication!(user, notice: "Signed in with Google.")
+    complete_web_authentication!(
+      user,
+      notice: "Signed in with Google.",
+      auth_method: AuthIdentity::PROVIDER_GOOGLE
+    )
   end
 end

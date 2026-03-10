@@ -5,10 +5,12 @@ module Web
       :user,
       :entitlement,
       :auth_session,
+      :auth_method,
       keyword_init: true
     )
 
     USER_ID_KEY = :web_user_id
+    AUTH_METHOD_KEY = :web_auth_method
 
     def initialize(session:)
       @session = session
@@ -29,16 +31,23 @@ module Web
         },
         user: user,
         entitlement: entitlement,
-        auth_session: nil
+        auth_session: nil,
+        auth_method: session[AUTH_METHOD_KEY]
       )
     end
 
-    def store!(user)
+    def store!(user, auth_method: nil)
       session[USER_ID_KEY] = user.id
+      if auth_method.present?
+        session[AUTH_METHOD_KEY] = auth_method
+      else
+        session.delete(AUTH_METHOD_KEY)
+      end
     end
 
     def clear!
       session.delete(USER_ID_KEY)
+      session.delete(AUTH_METHOD_KEY)
       nil
     end
 
