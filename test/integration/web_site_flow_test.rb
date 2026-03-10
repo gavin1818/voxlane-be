@@ -339,8 +339,9 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Pro subscribed"
     assert_includes response.body, "Manage subscription"
-    assert_includes response.body, "Cancel auto-renew"
     assert_not_includes response.body, "Start Pro subscription"
+    assert_not_includes response.body, "Cancel auto-renew"
+    assert_not_includes response.body, "Resume renewal"
   end
 
   test "account page refreshes the purchase state on checkout success" do
@@ -382,79 +383,32 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "You're on the included 7-day trial."
   end
 
-  test "cancel subscription schedules end of renewal" do
-    user = create_web_user(email: "cancel@example.com")
+  test "account page keeps cancellation management inside Stripe portal" do
+    user = create_web_user(email: "cancel-scheduled@example.com")
+    customer = user.billing_customers.create!(
+      provider: BillingCustomer::PROVIDER_STRIPE,
+      external_customer_id: "cus_test_cancel_scheduled",
+      livemode: false,
+      metadata: {}
+    )
+    user.subscriptions.create!(
+      billing_customer: customer,
+      provider: BillingCustomer::PROVIDER_STRIPE,
+      external_subscription_id: "sub_test_cancel_scheduled",
+      external_price_id: "price_test_123",
+      status: "active",
+      current_period_end_at: 1.month.from_now,
+      cancel_at_period_end: true,
+      metadata: {}
+    )
+
     sign_in_web_user(user)
-
-    cancellation = Struct.new(:current_period_end_at).new(Time.zone.parse("2026-04-09 12:00:00 UTC"))
-
-    with_stubbed_singleton_method(
-      Billing::StripeSubscriptionManager,
-      :cancel_at_period_end,
-      ->(user:) { cancellation }
-    ) do
-      patch billing_subscription_cancel_path
-      assert_redirected_to account_path
-      follow_redirect!
-    end
+    get account_path
 
     assert_response :success
-    assert_includes response.body, "Subscription will end on Apr 9, 2026."
-  end
-
-  test "cancel subscription accepts browser form submissions with method override" do
-    user = create_web_user(email: "cancel-method-override@example.com")
-    sign_in_web_user(user)
-
-    cancellation = Struct.new(:current_period_end_at).new(Time.zone.parse("2026-04-09 12:00:00 UTC"))
-
-    with_stubbed_singleton_method(
-      Billing::StripeSubscriptionManager,
-      :cancel_at_period_end,
-      ->(user:) { cancellation }
-    ) do
-      post billing_subscription_cancel_path, params: { _method: "patch" }
-      assert_redirected_to account_path
-      follow_redirect!
-    end
-
-    assert_response :success
-    assert_includes response.body, "Subscription will end on Apr 9, 2026."
-  end
-
-  test "resume subscription re-enables renewal" do
-    user = create_web_user(email: "resume@example.com")
-    sign_in_web_user(user)
-
-    with_stubbed_singleton_method(
-      Billing::StripeSubscriptionManager,
-      :resume,
-      ->(user:) { true }
-    ) do
-      patch billing_subscription_resume_path
-      assert_redirected_to account_path
-      follow_redirect!
-    end
-
-    assert_response :success
-    assert_includes response.body, "Subscription will renew automatically."
-  end
-
-  test "resume subscription accepts browser form submissions with method override" do
-    user = create_web_user(email: "resume-method-override@example.com")
-    sign_in_web_user(user)
-
-    with_stubbed_singleton_method(
-      Billing::StripeSubscriptionManager,
-      :resume,
-      ->(user:) { true }
-    ) do
-      post billing_subscription_resume_path, params: { _method: "patch" }
-      assert_redirected_to account_path
-      follow_redirect!
-    end
-
-    assert_response :success
-    assert_includes response.body, "Subscription will renew automatically."
+    assert_includes response.body, "Cancellation scheduled"
+    assert_includes response.body, "Manage subscription"
+    assert_not_includes response.body, "Cancel auto-renew"
+    assert_not_includes response.body, "Resume renewal"
   end
 end

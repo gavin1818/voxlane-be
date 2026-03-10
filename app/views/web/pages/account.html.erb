@@ -48,9 +48,9 @@ else
   "Your account is ready for Pro."
 end %>
 <% summary_copy = if subscription_cancel_scheduled
-  "Auto-renew is off, but billing access remains on until the current period ends. You can still resume before that date."
+  "Auto-renew is off, but billing access remains on until the current period ends. Open Manage subscription to change it in Stripe."
 elsif subscription_trial
-  "Stripe already has a subscription for this account. The trial end date is the first billing date, not a missing purchase."
+  "Stripe already has a subscription for this account. Open Manage subscription for payment details, invoices, or cancellation."
 elsif subscribed && subscription.grants_access?
   "Billing, desktop access, and account identity are already linked. Manage payment details or cancellation from this page."
 elsif account_trial
@@ -84,11 +84,11 @@ else
   "No subscription"
 end %>
 <% billing_note = if subscription_cancel_scheduled
-  "Auto-renew is off. You keep Pro access until #{format_date.call(subscription.current_period_end_at)}."
+  "Auto-renew is off. You keep Pro access until #{format_date.call(subscription.current_period_end_at)}. Use Manage subscription if you want to change it in Stripe."
 elsif subscription_trial
-  "Your payment method and subscription are already attached to this account. Manage billing or cancel auto-renew at any time."
-elsif subscription&.cancellable?
-  "Cancel auto-renew to stop future billing while keeping access through the current period."
+  "Your payment method and subscription are already attached to this account. Use Manage subscription for invoices, payment details, or cancellation."
+elsif subscribed
+  "Use Manage subscription for invoices, payment details, or cancellation."
 elsif account_trial
   "This is the built-in account trial. Starting a subscription replaces trial-only access with a managed Stripe plan."
 else
@@ -195,21 +195,6 @@ end %>
         billing_portal_path(return_url: account_url),
         method: :post,
         class: "button button--primary" %>
-    <% end %>
-
-    <% if subscription&.cancellable? %>
-      <%= button_to "Cancel auto-renew",
-        billing_subscription_cancel_path,
-        method: :patch,
-        class: "button button--danger",
-        form: {
-          onsubmit: "return window.confirm('Cancel automatic renewal at the end of the current period?')"
-        } %>
-    <% elsif subscription&.resumable? %>
-      <%= button_to "Resume renewal",
-        billing_subscription_resume_path,
-        method: :patch,
-        class: "button button--secondary" %>
     <% end %>
 
     <% unless subscribed %>

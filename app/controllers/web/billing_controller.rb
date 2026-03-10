@@ -29,20 +29,6 @@ class Web::BillingController < Web::BaseController
     redirect_to portal_session.url, allow_other_host: true
   end
 
-  def cancel_subscription
-    subscription = Billing::StripeSubscriptionManager.cancel_at_period_end(user: current_user)
-    period_end = subscription.current_period_end_at&.strftime("%b %-d, %Y")
-    message = period_end.present? ? "Subscription will end on #{period_end}." : "Subscription cancellation scheduled."
-
-    redirect_to account_path, notice: message
-  end
-
-  def resume_subscription
-    Billing::StripeSubscriptionManager.resume(user: current_user)
-
-    redirect_to account_path, notice: "Subscription will renew automatically."
-  end
-
   private
 
   def checkout_params
