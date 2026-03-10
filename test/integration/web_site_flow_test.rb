@@ -351,6 +351,26 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Subscription will end on Apr 9, 2026."
   end
 
+  test "cancel subscription accepts browser form submissions with method override" do
+    user = create_web_user(email: "cancel-method-override@example.com")
+    sign_in_web_user(user)
+
+    cancellation = Struct.new(:current_period_end_at).new(Time.zone.parse("2026-04-09 12:00:00 UTC"))
+
+    with_stubbed_singleton_method(
+      Billing::StripeSubscriptionManager,
+      :cancel_at_period_end,
+      ->(user:) { cancellation }
+    ) do
+      post billing_subscription_cancel_path, params: { _method: "patch" }
+      assert_redirected_to account_path
+      follow_redirect!
+    end
+
+    assert_response :success
+    assert_includes response.body, "Subscription will end on Apr 9, 2026."
+  end
+
   test "resume subscription re-enables renewal" do
     user = create_web_user(email: "resume@example.com")
     sign_in_web_user(user)
@@ -361,6 +381,24 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
       ->(user:) { true }
     ) do
       patch billing_subscription_resume_path
+      assert_redirected_to account_path
+      follow_redirect!
+    end
+
+    assert_response :success
+    assert_includes response.body, "Subscription will renew automatically."
+  end
+
+  test "resume subscription accepts browser form submissions with method override" do
+    user = create_web_user(email: "resume-method-override@example.com")
+    sign_in_web_user(user)
+
+    with_stubbed_singleton_method(
+      Billing::StripeSubscriptionManager,
+      :resume,
+      ->(user:) { true }
+    ) do
+      post billing_subscription_resume_path, params: { _method: "patch" }
       assert_redirected_to account_path
       follow_redirect!
     end

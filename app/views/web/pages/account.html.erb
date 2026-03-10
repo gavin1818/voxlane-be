@@ -203,9 +203,7 @@ end %>
         method: :patch,
         class: "button button--danger",
         form: {
-          data: {
-            turbo_confirm: "Cancel automatic renewal at the end of the current period?"
-          }
+          onsubmit: "return window.confirm('Cancel automatic renewal at the end of the current period?')"
         } %>
     <% elsif subscription&.resumable? %>
       <%= button_to "Resume renewal",
