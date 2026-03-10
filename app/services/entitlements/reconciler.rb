@@ -22,10 +22,7 @@ module Entitlements
     attr_reader :user
 
     def active_subscription
-      @active_subscription ||= user.subscriptions
-        .sort_by { |subscription| [subscription.current_period_end_at || Time.at(0), subscription.updated_at || Time.at(0)] }
-        .reverse
-        .find(&:grants_access?)
+      @active_subscription ||= user.active_subscription
     end
 
     def subscription_attributes

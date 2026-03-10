@@ -23,6 +23,10 @@ class Web::BaseController < ActionController::Base
 
   def load_web_session
     remember_pending_desktop_login_from_params!
+    reload_web_session!
+  end
+
+  def reload_web_session!
     @authenticated_session = session_authenticator.call
     return unless @authenticated_session
 

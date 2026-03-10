@@ -29,6 +29,18 @@ class User < ApplicationRecord
     entitlements.find_by(key: AppConfig.entitlement_key)
   end
 
+  def active_subscription(provider: BillingCustomer::PROVIDER_STRIPE)
+    subscriptions_for(provider)
+      .sort_by { |subscription| [subscription.current_period_end_at || Time.at(0), subscription.updated_at || Time.at(0)] }
+      .reverse
+      .find(&:grants_access?)
+  end
+
+  def display_subscription(provider: BillingCustomer::PROVIDER_STRIPE)
+    active_subscription(provider:) ||
+      subscriptions_for(provider).max_by { |subscription| [subscription.updated_at || Time.at(0), subscription.created_at || Time.at(0)] }
+  end
+
   def google_connected?
     auth_identities.any? { |identity| identity.provider == AuthIdentity::PROVIDER_GOOGLE }
   end
@@ -56,6 +68,10 @@ class User < ApplicationRecord
     return if email.blank?
 
     self.display_name = email.split("@").first.tr("._", " ").split.map(&:capitalize).join(" ")
+  end
+
+  def subscriptions_for(provider)
+    subscriptions.select { |subscription| subscription.provider == provider }
   end
 
   def password_presence_when_required

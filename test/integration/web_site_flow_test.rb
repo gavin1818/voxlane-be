@@ -292,6 +292,45 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Start Pro subscription"
   end
 
+  test "account page refreshes the purchase state on checkout success" do
+    user = create_web_user(email: "checkout-success@example.com")
+    customer = user.billing_customers.create!(
+      provider: BillingCustomer::PROVIDER_STRIPE,
+      external_customer_id: "cus_checkout_success",
+      livemode: false,
+      metadata: {}
+    )
+
+    sign_in_web_user(user)
+
+    with_stubbed_singleton_method(
+      Billing::StripeCheckoutCompletionSync,
+      :call,
+      lambda { |user:, checkout_session_id:|
+        user.subscriptions.create!(
+          billing_customer: customer,
+          provider: BillingCustomer::PROVIDER_STRIPE,
+          external_subscription_id: "sub_checkout_success",
+          external_price_id: "price_test_123",
+          status: "active",
+          current_period_end_at: 1.month.from_now,
+          cancel_at_period_end: false,
+          metadata: { "checkout_session_id" => checkout_session_id }
+        ).tap do
+          Entitlements::Reconciler.call(user)
+        end
+      }
+    ) do
+      get account_path(checkout: "success", session_id: "cs_test_123")
+    end
+
+    assert_response :success
+    assert_includes response.body, "Payment completed. Voxlane refreshed your Pro entitlement."
+    assert_includes response.body, "Your Pro access is active."
+    assert_includes response.body, "Manage subscription"
+    assert_not_includes response.body, "You're on the included 7-day trial."
+  end
+
   test "cancel subscription schedules end of renewal" do
     user = create_web_user(email: "cancel@example.com")
     sign_in_web_user(user)

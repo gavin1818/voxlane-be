@@ -35,5 +35,20 @@ module ActiveSupport
         "Authorization" => "Bearer #{auth_token_for(sub:, email:, name:)}"
       }
     end
+
+    def with_stubbed_singleton_method(object, method_name, implementation)
+      singleton_class = class << object; self; end
+      method_was_defined = singleton_class.method_defined?(method_name) || singleton_class.private_method_defined?(method_name)
+      original_method = object.method(method_name) if method_was_defined
+
+      singleton_class.send(:define_method, method_name, &implementation)
+      yield
+    ensure
+      if method_was_defined
+        singleton_class.send(:define_method, method_name, original_method)
+      else
+        singleton_class.send(:remove_method, method_name)
+      end
+    end
   end
 end

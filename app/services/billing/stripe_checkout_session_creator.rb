@@ -22,7 +22,7 @@ module Billing
         mode: "subscription",
         customer: customer.external_customer_id,
         client_reference_id: user.public_id,
-        success_url: success_url,
+        success_url: checkout_success_url,
         cancel_url: cancel_url,
         allow_promotion_codes: true,
         line_items: [
@@ -44,5 +44,13 @@ module Billing
     private
 
     attr_reader :user, :success_url, :cancel_url
+
+    def checkout_success_url
+      uri = URI.parse(success_url)
+      return success_url if Rack::Utils.parse_nested_query(uri.query).key?("session_id")
+
+      uri.query = [uri.query.presence, "session_id={CHECKOUT_SESSION_ID}"].compact.join("&")
+      uri.to_s
+    end
   end
 end

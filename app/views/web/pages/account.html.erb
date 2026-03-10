@@ -9,6 +9,7 @@
 <% account_trial = entitlement&.access_granted? && entitlement.source == "account_trial" %>
 <% access_active = entitlement&.access_granted? %>
 <% access_end_at = subscription&.current_period_end_at || entitlement&.active_until %>
+<% desktop_checkout_handoff = @desktop_checkout_handoff_url.present? %>
 <% access_status_label = if subscribed
   if subscription_cancel_scheduled
     "Cancellation scheduled"
@@ -118,6 +119,9 @@ end %>
             method: :post,
             class: "button button--primary" %>
         <% end %>
+        <% if desktop_checkout_handoff %>
+          <a class="button button--secondary" href="<%= @desktop_checkout_handoff_url %>">Open Voxlane</a>
+        <% end %>
         <a class="button button--secondary" href="<%= download_path %>">Download macOS app</a>
         <a class="button button--secondary" href="<%= support_path %>">Get support</a>
       </div>
@@ -145,6 +149,16 @@ end %>
     </aside>
   </div>
 </section>
+
+<% if desktop_checkout_handoff %>
+  <script>
+    window.addEventListener("load", function () {
+      window.setTimeout(function () {
+        window.location.href = "<%= @desktop_checkout_handoff_url %>";
+      }, 700);
+    });
+  </script>
+<% end %>
 
 <section class="section-card">
   <div class="section-heading-row">

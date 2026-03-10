@@ -19,9 +19,9 @@ module Billing
       local_subscription.assign_attributes(
         user: user,
         billing_customer: billing_customer,
-        external_price_id: subscription.items.data.first&.price&.id,
+        external_price_id: primary_item&.price&.id,
         status: subscription.status,
-        current_period_end_at: timestamp(subscription.current_period_end),
+        current_period_end_at: timestamp(current_period_end_value),
         cancel_at_period_end: subscription.cancel_at_period_end,
         canceled_at: timestamp(subscription.canceled_at),
         metadata: subscription.to_hash
@@ -42,6 +42,17 @@ module Billing
       else
         Stripe::Subscription.retrieve(stripe_subscription_or_id)
       end
+    end
+
+    def primary_item
+      @primary_item ||= subscription.items&.data&.first
+    end
+
+    def current_period_end_value
+      subscription_hash = subscription.to_hash
+      subscription_hash[:current_period_end] ||
+        primary_item&.to_hash&.dig(:current_period_end) ||
+        subscription_hash[:trial_end]
     end
 
     def timestamp(value)
