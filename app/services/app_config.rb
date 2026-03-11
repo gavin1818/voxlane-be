@@ -127,7 +127,7 @@ class AppConfig
     end
 
     def app_download_url
-      ENV.fetch("APP_DOWNLOAD_URL", frontend_url)
+      release_metadata_value("app_download_url") || ENV.fetch("APP_DOWNLOAD_URL", frontend_url)
     end
 
     def stripe_price_label
@@ -143,48 +143,53 @@ class AppConfig
     end
 
     def sparkle_latest_version
-      ENV.fetch("SPARKLE_LATEST_VERSION", ENV.fetch("APP_VERSION", "1.0.0"))
+      release_metadata_value("app_version") || ENV.fetch("SPARKLE_LATEST_VERSION", ENV.fetch("APP_VERSION", "1.0.0"))
     end
 
     def sparkle_latest_build
-      ENV.fetch("SPARKLE_LATEST_BUILD", ENV.fetch("APP_BUILD", "1"))
+      release_metadata_value("app_build") || ENV.fetch("SPARKLE_LATEST_BUILD", ENV.fetch("APP_BUILD", "1"))
     end
 
     def sparkle_download_url
-      ENV.fetch("SPARKLE_DOWNLOAD_URL", app_download_url)
+      release_metadata_value("sparkle_download_url") || ENV.fetch("SPARKLE_DOWNLOAD_URL", app_download_url)
     end
 
     def sparkle_download_length
-      ENV.fetch("SPARKLE_DOWNLOAD_LENGTH", "0")
+      release_metadata_value("sparkle_download_length") || ENV.fetch("SPARKLE_DOWNLOAD_LENGTH", "0")
     end
 
     def sparkle_eddsa_signature
-      ENV.fetch("SPARKLE_EDDSA_SIGNATURE", "")
+      release_metadata_value("sparkle_eddsa_signature") || ENV.fetch("SPARKLE_EDDSA_SIGNATURE", "")
     end
 
     def sparkle_minimum_system_version
-      ENV.fetch("SPARKLE_MINIMUM_SYSTEM_VERSION", "14.0")
+      release_metadata_value("sparkle_minimum_system_version") || ENV.fetch("SPARKLE_MINIMUM_SYSTEM_VERSION", "14.0")
     end
 
     def sparkle_release_notes_url
-      ENV.fetch("SPARKLE_RELEASE_NOTES_URL", "#{frontend_url}/releases/latest")
+      release_metadata_value("sparkle_release_notes_url") || ENV.fetch("SPARKLE_RELEASE_NOTES_URL", "#{frontend_url}/releases/latest")
     end
 
     def sparkle_release_notes_items
-      ENV.fetch(
+      release_metadata_items || ENV.fetch(
         "SPARKLE_RELEASE_NOTES_ITEMS",
         "Browser-based sign in|Stripe billing|Website checkout|Sparkle auto updates"
       ).split("|").map(&:strip).reject(&:empty?)
     end
 
     def sparkle_published_at
-      raw_value = ENV["SPARKLE_PUBLISHED_AT"].presence
+      raw_value = release_metadata_value("sparkle_published_at") || ENV["SPARKLE_PUBLISHED_AT"].presence
       timestamp = raw_value.present? ? Time.zone.parse(raw_value) : Time.current
       timestamp&.rfc2822 || Time.current.rfc2822
     end
 
     def sparkle_ready?
-      sparkle_download_url.present? && sparkle_eddsa_signature.present?
+      if release_metadata.present?
+        release_metadata_value("sparkle_download_url").present? &&
+          release_metadata_value("sparkle_eddsa_signature").present?
+      else
+        ENV["SPARKLE_DOWNLOAD_URL"].present? && ENV["SPARKLE_EDDSA_SIGNATURE"].present?
+      end
     end
 
     def validated_return_url(candidate, fallback:)
@@ -199,6 +204,22 @@ class AppConfig
     end
 
     private
+
+    def release_metadata
+      LatestReleaseMetadata.current
+    end
+
+    def release_metadata_value(key)
+      value = release_metadata&.[](key)
+      value.is_a?(String) ? value.presence : value
+    end
+
+    def release_metadata_items
+      items = release_metadata&.[]("sparkle_release_notes_items")
+      return if items.nil?
+
+      Array(items).map(&:to_s).map(&:strip).reject(&:empty?)
+    end
 
     def normalize_origin(url)
       uri = URI.parse(url)

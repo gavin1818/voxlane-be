@@ -96,7 +96,8 @@ Important variables:
 - `SMTP_DOMAIN`
 - `SUPPORT_EMAIL`
 - `APP_DOWNLOAD_URL`
-- `SPARKLE_*`
+- `RELEASE_METADATA_URL`
+- `SPARKLE_*` as a legacy fallback only
 
 `AUTH_REFRESH_TOKEN_TTL_DAYS` also controls how long the website login cookie stays valid, so users stay signed in across browser restarts until that TTL expires or they sign out.
 

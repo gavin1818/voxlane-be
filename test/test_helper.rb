@@ -8,6 +8,8 @@ module ActiveSupport
     parallelize(workers: :number_of_processors)
 
     setup do
+      LatestReleaseMetadata.reset!
+      ENV.delete("RELEASE_METADATA_URL")
       ENV["AUTH_JWT_SECRET"] = "test-secret"
       ENV["AUTH_TOKEN_AUDIENCE"] = "voxlane-api"
       ENV["AUTH_TOKEN_ISSUER"] = "voxlane-auth"

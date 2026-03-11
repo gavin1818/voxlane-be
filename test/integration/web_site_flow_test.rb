@@ -30,6 +30,23 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     )
   end
 
+  private def release_metadata_payload
+    {
+      "app_name" => "Voxlane",
+      "app_version" => "1.0.1",
+      "app_build" => "21",
+      "app_download_url" => "https://voxlane.tor1.cdn.digitaloceanspaces.com/releases/Voxlane-1.0.1-21.zip",
+      "sparkle_download_url" => "https://voxlane.tor1.cdn.digitaloceanspaces.com/releases/Voxlane-1.0.1-21.zip",
+      "sparkle_download_length" => "7118970",
+      "sparkle_eddsa_signature" => "test-signature",
+      "sparkle_minimum_system_version" => "14.6",
+      "sparkle_release_notes_url" => "https://voxlane.io/releases/latest",
+      "sparkle_release_notes_items" => ["Release notes pending", "Faster release publishing"],
+      "sparkle_published_at" => "2026-03-11T12:34:39Z",
+      "static_appcast_url" => "https://voxlane.tor1.cdn.digitaloceanspaces.com/releases/latest/appcast.xml"
+    }
+  end
+
   private def sign_in_web_user(user)
     post login_path, params: {
       auth: {
@@ -69,6 +86,35 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, "https://www.googletagmanager.com/gtag/js?id=G-TEST123456"
       assert_includes response.body, "gtag('config', 'G-TEST123456');"
+    end
+  end
+
+  test "download surfaces latest release metadata from the published release file" do
+    metadata = release_metadata_payload
+
+    with_stubbed_singleton_method(LatestReleaseMetadata, :current, -> { metadata }) do
+      get root_path
+      assert_response :success
+      assert_includes response.body, metadata.fetch("app_download_url")
+
+      get download_path
+      assert_response :success
+      assert_includes response.body, metadata.fetch("sparkle_download_url")
+      assert_includes response.body, "1.0.1"
+      assert_includes response.body, "21"
+
+      get release_notes_path
+      assert_response :success
+      assert_includes response.body, "Faster release publishing"
+
+      get appcast_path
+      assert_response :success
+      assert_equal "application/xml", response.media_type
+      assert_equal "utf-8", response.charset
+      assert_includes response.body, 'sparkle:shortVersionString="1.0.1"'
+      assert_includes response.body, 'sparkle:version="21"'
+      assert_includes response.body, 'sparkle:edSignature="test-signature"'
+      assert_includes response.body, metadata.fetch("sparkle_download_url")
     end
   end
 
