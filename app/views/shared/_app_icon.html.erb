@@ -1,0 +1,9 @@
+<%
+  decorative = local_assigns.fetch(:decorative, true)
+  class_name = ["app-icon", local_assigns[:class_name]].compact.reject(&:blank?).join(" ")
+%>
+<img
+  class="<%= class_name %>"
+  src="/favicon.svg"
+  alt="<%= decorative ? "" : "#{AppConfig.app_name} icon" %>"
+  <%= 'aria-hidden="true"' if decorative %>>

@@ -55,7 +55,7 @@
       that read like you carefully typed them - in real time. 4x faster than typing.
     </p>
 
-    <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+    <a class="button button--primary" href="<%= install_instructions_path(downloadLink: AppConfig.app_download_url) %>">Download for macOS</a>
 
     <div class="hero__subactions">
       <% if authenticated? %>
@@ -243,7 +243,7 @@
       </div>
 
       <div class="button-row">
-        <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+        <a class="button button--primary" href="<%= install_instructions_path(downloadLink: AppConfig.app_download_url) %>">Download for macOS</a>
         <a class="button button--secondary" href="<%= pricing_path %>">View pricing</a>
       </div>
     </div>

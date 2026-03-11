@@ -9,6 +9,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +21,7 @@
     <div class="shell <%= "shell--auth" if auth_scene %>">
       <header class="topbar <%= "topbar--reference" if home_page %><%= " topbar--auth" if auth_scene %>">
         <a class="brand" href="<%= root_path %>">
-          <span class="brand__mark" aria-hidden="true"></span>
+          <%= render "shared/app_icon", class_name: "brand__mark", decorative: true %>
           <span class="brand__copy">
             <span class="brand__name"><%= AppConfig.app_name %></span>
             <span class="brand__tag"><%= home_page ? "AI voice dictation" : "Voice-first writing for macOS" %></span>
@@ -41,7 +42,7 @@
             <% if authenticated? %>
               <a class="nav-link nav-link--quiet" href="<%= account_path %>">Account</a>
             <% end %>
-            <a class="button button--primary" href="<%= AppConfig.app_download_url %>">Download for macOS</a>
+            <a class="button button--primary" href="<%= install_instructions_path(downloadLink: AppConfig.app_download_url) %>">Download for macOS</a>
           <% else %>
             <% if authenticated? %>
               <span class="pill pill--ghost"><%= current_user_email %></span>

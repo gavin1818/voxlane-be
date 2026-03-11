@@ -1,0 +1,123 @@
+<% content_for :title, "Install #{AppConfig.app_name} for macOS" %>
+
+<section class="hero hero--inner install-hero" data-auto-download-url="<%= @download_link %>">
+  <span class="hero__eyebrow">Thanks for downloading</span>
+  <h1 class="hero__title install-hero__title">Just a few steps left.</h1>
+  <p class="hero__copy install-hero__copy">
+    Your download should start automatically. Once <strong><%= @download_filename %></strong> lands in Downloads,
+    follow these steps to finish installing <%= AppConfig.app_name %> on your Mac.
+  </p>
+
+  <div class="button-row install-hero__actions">
+    <a class="button button--primary" href="<%= @download_link %>">Download again</a>
+    <a class="button button--secondary" href="<%= release_notes_path %>">View release notes</a>
+  </div>
+
+  <p class="hero__caption install-hero__caption">
+    Latest package: <strong><%= @download_package_label %></strong> for version <strong><%= AppConfig.sparkle_latest_version %></strong>,
+    build <strong><%= AppConfig.sparkle_latest_build %></strong>.
+  </p>
+</section>
+
+<section class="section-card section-card--subtle">
+  <div class="meta-grid">
+    <div class="meta-card">
+      <span class="meta-card__label">Download file</span>
+      <span class="meta-card__value"><%= @download_filename %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Latest version</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_latest_version %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Build</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_latest_build %></span>
+    </div>
+    <div class="meta-card">
+      <span class="meta-card__label">Minimum macOS</span>
+      <span class="meta-card__value"><%= AppConfig.sparkle_minimum_system_version %>+</span>
+    </div>
+  </div>
+</section>
+
+<section class="section install-guide">
+  <div class="section-head section-head--center">
+    <span class="kicker">Install guide</span>
+    <h2>Install <%= AppConfig.app_name %> in three quick steps.</h2>
+    <p>If the browser did not start the download automatically, use the button above and then continue here.</p>
+  </div>
+
+  <div class="grid grid--3 install-step-grid">
+    <% @install_steps.each do |step| %>
+      <article class="card install-step">
+        <span class="install-step__number"><%= step[:number] %></span>
+
+        <div class="install-step__visual install-step__visual--<%= step[:visual] %>" aria-hidden="true">
+          <% case step[:visual] %>
+          <% when :downloads %>
+            <div class="install-window install-window--downloads">
+              <div class="install-window__bubble">Downloads</div>
+              <div class="install-window__shelf">
+                <div class="install-icon install-icon--note"></div>
+                <div class="install-icon install-icon--calendar"></div>
+                <div class="install-icon install-icon--file">
+                  <%= render "shared/app_icon", class_name: "app-icon--download", decorative: true %>
+                </div>
+                <div class="install-icon install-icon--trash"></div>
+              </div>
+            </div>
+          <% when :install %>
+            <div class="install-window install-window--transfer">
+              <div class="install-window__chrome">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="install-window__transfer">
+                <div class="install-app-tile">
+                  <%= render "shared/app_icon", class_name: "install-app-tile__icon", decorative: true %>
+                  <strong><%= AppConfig.app_name %></strong>
+                </div>
+                <div class="install-folder-tile">
+                  <div class="install-folder-tile__icon"></div>
+                  <strong>Applications</strong>
+                </div>
+              </div>
+            </div>
+          <% when :launch %>
+            <div class="install-window install-window--launch">
+              <div class="install-window__header">Applications</div>
+              <div class="install-window__app-row">
+                <%= render "shared/app_icon", class_name: "install-app-tile__icon install-app-tile__icon--small", decorative: true %>
+                <span><%= AppConfig.app_name %>.app</span>
+              </div>
+              <div class="install-window__ghost-row"></div>
+              <div class="install-window__ghost-row install-window__ghost-row--short"></div>
+            </div>
+          <% end %>
+        </div>
+
+        <h3><%= step[:title] %></h3>
+        <p><%= step[:copy] %></p>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const installHero = document.querySelector("[data-auto-download-url]");
+    if (!installHero) return;
+
+    const downloadUrl = installHero.getAttribute("data-auto-download-url");
+    if (!downloadUrl) return;
+
+    const downloadFrame = document.createElement("iframe");
+    downloadFrame.src = downloadUrl;
+    downloadFrame.style.display = "none";
+    downloadFrame.setAttribute("aria-hidden", "true");
+    document.body.appendChild(downloadFrame);
+
+    window.setTimeout(() => {
+      downloadFrame.remove();
+    }, 45000);
+  })();
+</script>

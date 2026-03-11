@@ -2,11 +2,11 @@
   <span class="hero__eyebrow">Download</span>
   <h1 class="hero__title">Get <%= AppConfig.app_name %> for macOS.</h1>
   <p class="hero__copy">
-    Download the latest signed build, review what changed, and then sign in with the same account you use on voxlane.io.
+    Download the latest signed build, review what changed, and then follow the install guide before signing in with the same account you use on voxlane.io.
   </p>
 
   <div class="button-row">
-    <a class="button button--primary" href="<%= AppConfig.sparkle_download_url %>">Download latest build</a>
+    <a class="button button--primary" href="<%= install_instructions_path(downloadLink: AppConfig.sparkle_download_url) %>">Download latest build</a>
     <a class="button button--secondary" href="<%= release_notes_path %>">View release notes</a>
     <a class="button button--secondary" href="<%= login_path %>">Sign in on the web</a>
   </div>

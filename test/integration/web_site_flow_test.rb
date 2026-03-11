@@ -95,13 +95,19 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
     with_stubbed_singleton_method(LatestReleaseMetadata, :current, -> { metadata }) do
       get root_path
       assert_response :success
-      assert_includes response.body, metadata.fetch("app_download_url")
+      assert_includes response.body, install_instructions_path(downloadLink: metadata.fetch("app_download_url"))
 
       get download_path
       assert_response :success
-      assert_includes response.body, metadata.fetch("sparkle_download_url")
+      assert_includes response.body, install_instructions_path(downloadLink: metadata.fetch("sparkle_download_url"))
       assert_includes response.body, "1.0.1"
       assert_includes response.body, "21"
+
+      get install_instructions_path(downloadLink: metadata.fetch("sparkle_download_url"))
+      assert_response :success
+      assert_includes response.body, "Just a few steps left."
+      assert_includes response.body, "Voxlane-1.0.1-21.zip"
+      assert_includes response.body, "data-auto-download-url=\"#{metadata.fetch("sparkle_download_url")}\""
 
       get release_notes_path
       assert_response :success
@@ -115,6 +121,18 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
       assert_includes response.body, 'sparkle:version="21"'
       assert_includes response.body, 'sparkle:edSignature="test-signature"'
       assert_includes response.body, metadata.fetch("sparkle_download_url")
+    end
+  end
+
+  test "install instructions ignore untrusted download hosts" do
+    metadata = release_metadata_payload
+
+    with_stubbed_singleton_method(LatestReleaseMetadata, :current, -> { metadata }) do
+      get install_instructions_path(downloadLink: "https://downloads.evil.test/Voxlane.zip")
+
+      assert_response :success
+      assert_includes response.body, metadata.fetch("sparkle_download_url")
+      assert_not_includes response.body, "downloads.evil.test"
     end
   end
 

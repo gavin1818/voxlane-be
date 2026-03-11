@@ -70,8 +70,19 @@
       }
 
       .brand {
-        display: flex;
-        flex-direction: column;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand__mark {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+      }
+
+      .brand__copy {
+        display: grid;
         gap: 4px;
       }
 
@@ -827,8 +838,11 @@
     <div class="shell">
       <header class="shell__header">
         <a class="brand" href="<%= pricing_path %>">
-          <span class="brand__name"><%= AppConfig.app_name %></span>
-          <span class="brand__tag">Voice-first writing for macOS with unified billing and entitlement</span>
+          <%= render "shared/app_icon", class_name: "brand__mark", decorative: true %>
+          <span class="brand__copy">
+            <span class="brand__name"><%= AppConfig.app_name %></span>
+            <span class="brand__tag">Voice-first writing for macOS with unified billing and entitlement</span>
+          </span>
         </a>
 
         <nav class="nav">

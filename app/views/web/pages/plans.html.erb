@@ -50,7 +50,7 @@
           <a class="button button--secondary" href="<%= account_path %>">Manage account</a>
         <% else %>
           <a class="button button--primary" href="<%= login_path %>">Sign in to start trial</a>
-          <a class="button button--secondary" href="<%= AppConfig.app_download_url %>">Download app</a>
+          <a class="button button--secondary" href="<%= install_instructions_path(downloadLink: AppConfig.app_download_url) %>">Download app</a>
         <% end %>
       </div>
     </aside>

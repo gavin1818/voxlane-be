@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root "web/pages#home"
   get "pricing", to: "web/pages#pricing", as: :pricing
   get "download", to: "web/pages#download", as: :download
+  get "congratulations-mac", to: "web/pages#install_instructions", as: :install_instructions
   get "account", to: "web/pages#account", as: :account
   patch "account/profile", to: "web/accounts#update_profile", as: :account_profile
   patch "account/password", to: "web/accounts#update_password", as: :account_password
