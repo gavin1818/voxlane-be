@@ -48,6 +48,8 @@ SPARKLE_LATEST_BUILD=...
 SPARKLE_RELEASE_NOTES_URL=https://voxlane.io/releases/latest
 ```
 
+`AUTH_REFRESH_TOKEN_TTL_DAYS` 现在也决定网站登录 cookie 的持久时长。只要用户没主动 logout，且后端 auth session 没过期，重新打开浏览器也会保持登录。
+
 ## Google OAuth
 
 - Google Cloud Console 里把回调地址设成 `https://voxlane.io/auth/google/callback`

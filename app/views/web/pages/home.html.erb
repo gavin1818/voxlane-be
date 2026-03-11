@@ -9,7 +9,8 @@
     "Gmail", "Google", "Medium", "Grammarly", "Google Docs", "Apple Notes", "ChatGPT", "Preview",
     "Slack", "Pinterest", "TikTok", "Raycast", "Brave", "Goodnotes", "TextEdit"
   ]
-  platforms = ["macOS", "Windows", "iOS", "Android"]
+  current_platforms = ["macOS"]
+  incoming_platforms = ["Windows", "iOS", "Android"]
   dictate_primary = [
     ["Removes filler words", "Automatically removes filler words like \"um,\" \"uh,\" and \"you know,\" making your transcriptions clear and professional."],
     ["Removes repetition", "Automatically detects and removes unnecessary and repeated words in your speech, ensuring your language is concise and easy to understand."],
@@ -143,12 +144,12 @@
   </div>
 
   <p class="hero__caption hero__caption--center">
-    Voxlane works across all apps you use on Mac, Windows, iOS, and Android.
-    Speak naturally, and your words instantly become perfect writing wherever you work.
+    Voxlane works across all apps you use on Mac.
+    Speak naturally, and your words instantly become polished writing wherever you work.
   </p>
 
   <div class="platform-row">
-    <% platforms.each do |platform| %>
+    <% current_platforms.each do |platform| %>
       <span class="platform-pill"><%= platform %></span>
     <% end %>
   </div>
@@ -227,17 +228,17 @@
   <div class="plan-grid device-band">
     <div>
       <div class="platform-row platform-row--start">
-        <% platforms.each do |platform| %>
+        <% current_platforms.each do |platform| %>
           <span class="platform-pill"><%= platform %></span>
         <% end %>
       </div>
 
       <div class="section-head">
         <span class="kicker">Platform</span>
-        <h2>Your voice, on <span>every device</span></h2>
+        <h2>Your voice, on <span>macOS today</span></h2>
         <p>
-          Use Voxlane on your mobile and computer for a consistent experience across the devices
-          you rely on every day.
+          Voxlane is currently available on macOS.
+          <%= incoming_platforms.to_sentence %> are incoming.
         </p>
       </div>
 
@@ -250,7 +251,7 @@
     <article class="device-visual">
       <div class="device-visual__panel">
         <span class="capture-label">Voxlane</span>
-        <p>Your words arrive polished, structured, and ready to send across the devices you use every day.</p>
+        <p>Your words arrive polished, structured, and ready to send across every app you use on Mac.</p>
       </div>
     </article>
   </div>

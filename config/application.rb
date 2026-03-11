@@ -40,11 +40,14 @@ module Voxlane
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    web_session_ttl = ENV.fetch("AUTH_REFRESH_TOKEN_TTL_DAYS", 30).to_i.days
+
     config.session_store :cookie_store,
       key: "_voxlane_session",
       same_site: :lax,
       secure: Rails.env.production?,
-      httponly: true
+      httponly: true,
+      expire_after: web_session_ttl
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
     config.middleware.use ActionDispatch::Flash

@@ -1,4 +1,5 @@
 require "test_helper"
+require "time"
 require "uri"
 
 class WebSiteFlowTest < ActionDispatch::IntegrationTest
@@ -205,6 +206,28 @@ class WebSiteFlowTest < ActionDispatch::IntegrationTest
 
     assert_includes response.body, "Profile updated."
     assert_includes response.body, "Alex Founder"
+  end
+
+  test "email login issues a persistent web session cookie" do
+    user = create_web_user(email: "remember-me@example.com")
+
+    freeze_time do
+      post login_path, params: {
+        auth: {
+          email: user.email,
+          password: "password123"
+        }
+      }
+
+      assert_redirected_to account_path
+
+      set_cookie = response.headers.fetch("Set-Cookie")
+      cookie_expiration = Time.httpdate(set_cookie.match(/expires=([^;]+)/i).captures.first)
+
+      assert_includes set_cookie, "_voxlane_session="
+      assert_match(/expires=/i, set_cookie)
+      assert_in_delta 30.days.from_now.to_i, cookie_expiration.to_i, 5
+    end
   end
 
   test "password updates revoke the current web session and require re-authentication" do

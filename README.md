@@ -1,5 +1,10 @@
 # Voxlane Backend
 
+## to access the production server and the dokku rails app server console
+ssh root@146.190.241.57
+dokku run voxlane-be rails console
+
+
 Rails backend for the Voxlane website, first-party authentication, Stripe billing, desktop entitlement sync, and Sparkle release metadata.
 
 ## Stack
@@ -92,6 +97,8 @@ Important variables:
 - `SUPPORT_EMAIL`
 - `APP_DOWNLOAD_URL`
 - `SPARKLE_*`
+
+`AUTH_REFRESH_TOKEN_TTL_DAYS` also controls how long the website login cookie stays valid, so users stay signed in across browser restarts until that TTL expires or they sign out.
 
 ## Local Setup
 
