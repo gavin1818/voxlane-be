@@ -11,7 +11,7 @@ gem "puma", ">= 5.0"
 gem "jwt", "~> 2.9"
 gem "bcrypt", "~> 3.1"
 gem "rack-cors"
-gem "stripe", "~> 16.0"
+gem "stripe", "~> 19.0"
 
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
